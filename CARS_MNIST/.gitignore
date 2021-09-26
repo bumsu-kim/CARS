@@ -1,0 +1,8 @@
+.DS_Store
+Res*/
+Analysis/
+temporary_add_this_to_gitignore.ipynb
+img_*/
+.vscode/
+.ipynb_checkpoints/
+__pycache__/
