@@ -1,4 +1,8 @@
 function Result = NesterovRS(fparam, param)
+% The Nesterov-Spokoiny Random Search algorithm. As described in:
+%   "Random Gradient-Free Minimization of Convex Functions"
+% By Yurii Nesterov and Vladimir Spokoiny.
+% 
 algname = 'Nesterov-Spokoiny';
 %% INITIALIZATION
 Result = struct;

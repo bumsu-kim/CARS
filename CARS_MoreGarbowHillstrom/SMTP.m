@@ -1,4 +1,8 @@
 function Result = SMTP(fparam, param, algname, momentum)
+% The SMTP algorithm, as described in:
+%   "A Stochastic Derivative Free Optimization Method with Momentum"
+% by Eduard Gorbunov et al.
+% 
 % Search direction found in the orthogonal complement of the previous
 % direction(s)
 

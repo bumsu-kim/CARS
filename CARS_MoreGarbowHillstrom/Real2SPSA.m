@@ -1,7 +1,10 @@
 function Result = Real2SPSA(fparam, param)
 
 %%
-% Spall 2000
+% The 2SPSA algorithm. As described in:
+%   " Adaptive Stochastic Approximation by the Simultaneous Perturbation
+%     Method"
+% By James C. Spall
 % 
 
 %% INITIALIZATION

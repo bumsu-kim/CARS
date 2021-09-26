@@ -1,4 +1,8 @@
 function Result = RealSPSA(fparam, param)
+% The SPSA algorithm. As described in:
+%   "Multivariate Stochastic Approximation Using a Simultaneous
+%   Perturbation Gradient Approximation"
+% by James C. Spall et al
 
 %% INITIALIZATION
 Result = struct;

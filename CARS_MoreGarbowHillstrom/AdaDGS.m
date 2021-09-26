@@ -1,4 +1,9 @@
 function Result = AdaDGS(fparam, param, n_quad_pts)
+% The AdaDGS algorithm, as described in:
+%   "AdaDGS: An Adaptive Black-Box Optimization Method with a Nonlocal 
+%   Directional Gaussian Smoothing Gradient"
+% By Huang Tran and Guannan Zhang, 2021
+%
 % Search direction found in the orthogonal complement of the previous
 % direction(s)
 
