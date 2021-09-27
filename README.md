@@ -1,5 +1,5 @@
 # CARS
-Curvature Aware Random Search
+Curvature-Aware Random Search
 
 This repo has three folders for three different experiments.
 
