@@ -102,7 +102,6 @@ for k=1:maxit
         continue;
     end
     objval_seq(k+1) = fxnew;
-     
     if isfield(fparam, 'fmin')
         % Here, eps = EPS_MORE * (f0 - fmin)
         if (fxnew < fmin + eps) 
@@ -112,6 +111,11 @@ for k=1:maxit
             end
             converged = true;
             break;
+        end
+    end
+    if verbose>2
+        if mod(k,100)==0
+            sprintf('#it: %4d, fval: %.5f', k, fxnew);
         end
     end
     if (num_queries(k+1)>param.MAX_QUERIES) % not solved
