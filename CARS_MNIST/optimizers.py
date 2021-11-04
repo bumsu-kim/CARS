@@ -198,8 +198,9 @@ class OptForAttack(BaseOptimizer):
 
     
 
-    def CARS(self, u, r = None):
-        ''' Curvature Aware (Random) Search
+    def CARS_step(self, u, r = None):
+        ''' Curvature Aware (Random) Search Step
+        here, we assume the direction u is given.
         d = f',  h= f''
         (' denotes the directional derivative along u)
 
@@ -236,9 +237,9 @@ class OptForAttack(BaseOptimizer):
             alpha = self.alpha
         else: # CARS-NQ
             d, d2, d3, d4 = ot.NumQuad(self.f, self.x, r, u, self.fval, self.Atk, self.nq)
-            d3max = np.abs(d3) + np.abs(d/d2*d4)
+            d3max = np.abs(d3) + np.abs(d/d2*d4) # estimate of sup|f'''| near x
             # 1/Lhat estimated from higher order derivatives
-            alpha = self.alpha/ ( 0.5 + np.sqrt( 0.25 + np.abs(d*d3max/d2**2/3)))
+            alpha = self.alpha/ ( 0.5 + np.sqrt( 0.25 + np.abs(d*d3max/d2**2/3))) # see proposition 5.3
 
         if d2 > 1e-8: # when convex
             xnew, tnew = self.restrict_to_box(self.x, - alpha * d/d2 * u)
@@ -338,7 +339,7 @@ class CARS(OptForAttack):
 
             # normalize
             u /= np.linalg.norm(u)
-        fmin, xmin = self.CARS(u, self.r)
+        fmin, xmin = self.CARS_step(u, self.r)
         self.x = xmin
         self.ximg = self.Atk.xmap(self.x)
         self.fval = fmin
@@ -405,3 +406,135 @@ class SquareATK(OptForAttack):
         else:
             return self.function_evals, None, None   
 
+#######################################################################################
+## NEED UPDATES 
+
+class SMTP(OptForAttack):
+    '''
+    Curvature Aware Random Search
+    '''
+    def __init__(self, param, y0, f):
+        '''
+            Initialize parameters
+        '''
+        
+        super().__init__(param, y0, f)
+        self.Otype = 'CARS'
+        
+        
+        ''' Other parameters
+        p ...... Window size parameter. Fraction of pixels being changed
+                 Thus the window size is sqrt(p)*28 for MNIST imgs
+        '''
+        self.p = self.wsp
+
+    def sety0(self, y):
+        super().sety0(y)
+
+    def step(self, u = None):
+        ''' 
+            Do CARS Step.
+            The direction vector u can be given as a param.
+            If not given, it randomly generate a direction using the distribution parameter
+                (-dd in script, self.rtype)
+        '''
+        if self.t==0:
+            self.stopiter()
+            if self.status != None:
+                return self.function_evals, self.x, self.status
+        # Take step of optimizer
+        if u == None:
+            # generate a random direction
+            if self.rtype == 'Box':
+                u = ot.sampling( n_samp = 1, dim = self.n, randtype = self.rtype,
+                            distparam = {'coord': ot.idx2coord(np.random.randint(0, np.size(self.x))),
+                                'windowsz': int(np.round(np.sqrt(np.prod(self.Atk.viewsize[2:4])*self.p))),
+                                'ImSize': self.Atk.viewsize[2:4]
+                                }
+                            )
+            elif self.rtype == 'Uniform':
+                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.rtype)
+            elif self.rtype == 'Coord':
+                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.dist_dir)
+
+            # normalize
+            u /= np.linalg.norm(u)
+        fmin, xmin = self.CARS_step(u, self.r)
+        self.x = xmin
+        self.ximg = self.Atk.xmap(self.x)
+        self.fval = fmin
+
+        self.t += 1
+        self.stopiter()
+        # decrease p as #iter increases
+        if self.t in [2,10,40,250,500,800,1200,1600]:
+            self.p /= 2.
+        if self.status != None:
+            return self.function_evals, self.x, self.status
+        else:
+            return self.function_evals, None, None   
+
+class NS(OptForAttack):
+    '''
+    Curvature Aware Random Search
+    '''
+    def __init__(self, param, y0, f):
+        '''
+            Initialize parameters
+        '''
+        
+        super().__init__(param, y0, f)
+        self.Otype = 'CARS'
+        
+        
+        ''' Other parameters
+        p ...... Window size parameter. Fraction of pixels being changed
+                 Thus the window size is sqrt(p)*28 for MNIST imgs
+        '''
+        self.p = self.wsp
+
+    def sety0(self, y):
+        super().sety0(y)
+
+    def step(self, u = None):
+        ''' 
+            Do CARS Step.
+            The direction vector u can be given as a param.
+            If not given, it randomly generate a direction using the distribution parameter
+                (-dd in script, self.rtype)
+        '''
+        if self.t==0:
+            self.stopiter()
+            if self.status != None:
+                return self.function_evals, self.x, self.status
+        # Take step of optimizer
+        if u == None:
+            # generate a random direction
+            if self.rtype == 'Box':
+                u = ot.sampling( n_samp = 1, dim = self.n, randtype = self.rtype,
+                            distparam = {'coord': ot.idx2coord(np.random.randint(0, np.size(self.x))),
+                                'windowsz': int(np.round(np.sqrt(np.prod(self.Atk.viewsize[2:4])*self.p))),
+                                'ImSize': self.Atk.viewsize[2:4]
+                                }
+                            )
+            elif self.rtype == 'Uniform':
+                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.rtype)
+            elif self.rtype == 'Coord':
+                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.dist_dir)
+
+            # normalize
+            u /= np.linalg.norm(u)
+        fmin, xmin = self.CARS_step(u, self.r)
+        self.x = xmin
+        self.ximg = self.Atk.xmap(self.x)
+        self.fval = fmin
+
+        self.t += 1
+        self.stopiter()
+        # decrease p as #iter increases
+        if self.t in [2,10,40,250,500,800,1200,1600]:
+            self.p /= 2.
+        if self.status != None:
+            return self.function_evals, self.x, self.status
+        else:
+            return self.function_evals, None, None   
