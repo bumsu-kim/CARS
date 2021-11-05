@@ -225,7 +225,7 @@ class Tester:
             self.res[oname][label].saveResult(oname, opt, performance_log)
             if verbal>1:
                 if opt.t>0:
-                    if opt.Otype != 'SQUARE':
+                    if opt.Otype in ['CARS']:
                         print(f"CARS: {opt.CARScounter},\tCVX = {opt.cvx_counter/opt.t*100:.1f} %", end='\t')
                 # print(f"CVX counter: {opt.cvx_counter}")
                 # print(f"Final distortion: {opt.Atk.dist_from_orig(opt.x)}")
