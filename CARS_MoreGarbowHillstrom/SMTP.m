@@ -3,8 +3,6 @@ function Result = SMTP(fparam, param, algname, momentum)
 %   "A Stochastic Derivative Free Optimization Method with Momentum"
 % by Eduard Gorbunov et al.
 % 
-% Search direction found in the orthogonal complement of the previous
-% direction(s)
 
 %% INITIALIZATION
 Result = struct;

@@ -411,7 +411,11 @@ class SquareATK(OptForAttack):
 
 class SMTP(OptForAttack):
     '''
-    Curvature Aware Random Search
+    SMTP: Stochastic Three Point Methods with Momentum),
+    as described in:
+       "A Stochastic Derivative Free Optimization Method with Momentum"
+    by Eduard Gorbunov et al.
+
     '''
     def __init__(self, param, y0, f):
         '''
@@ -419,22 +423,19 @@ class SMTP(OptForAttack):
         '''
         
         super().__init__(param, y0, f)
-        self.Otype = 'CARS'
-        
-        
-        ''' Other parameters
-        p ...... Window size parameter. Fraction of pixels being changed
-                 Thus the window size is sqrt(p)*28 for MNIST imgs
-        '''
+        self.Otype = 'SMTP'
+        self.beta = 0.5
+        self.v = np.zeros((1, self.n))
+        self.gamma_init = 1. # determines the sampling radius
         self.p = self.wsp
-
+        
     def sety0(self, y):
         super().sety0(y)
 
     def step(self, u = None):
         ''' 
-            Do CARS Step.
-            The direction vector u can be given as a param.
+            SMTP Step
+            The direction vector u can be given as a parameter.
             If not given, it randomly generate a direction using the distribution parameter
                 (-dd in script, self.rtype)
         '''
@@ -459,10 +460,22 @@ class SMTP(OptForAttack):
 
             # normalize
             u /= np.linalg.norm(u)
-        fmin, xmin = self.CARS_step(u, self.r)
-        self.x = xmin
+        gamma = self.gamma_init/np.sqrt(self.t+1)
+        vp = self.beta*self.v + u
+        vm = self.beta*self.v - u
+        xp = self.x - gamma*vp
+        xm = self.x - gamma*vm
+        zp = xp - gamma*self.beta/(1-self.beta)*vp
+        zm = xm - gamma*self.beta/(1-self.beta)*vm
+
+        # computing self.f( ) automatically replaces xmin, fmin if new min is found
+        _ = self.f(self.proj(zp))
+        _ = self.f(self.proj(zm))
+
+        self.x = self.xmin
+        self.fval = self.fmin
+
         self.ximg = self.Atk.xmap(self.x)
-        self.fval = fmin
 
         self.t += 1
         self.stopiter()
@@ -473,6 +486,76 @@ class SMTP(OptForAttack):
             return self.function_evals, self.x, self.status
         else:
             return self.function_evals, None, None   
+
+class STP(OptForAttack):
+    '''
+    STP: Stochastic Three Point Methods,
+    as described in:
+       "Stochastic Three Points Method for Unconstrained Smooth Minimization"
+    by Bergou et al.
+
+    '''
+    def __init__(self, param, y0, f):
+        '''
+            Initialize parameters
+        '''
+        
+        super().__init__(param, y0, f)
+        self.Otype = 'STP'
+        self.gamma_init = 1. # determines the sampling radius
+        self.p = self.wsp
+        
+    def sety0(self, y):
+        super().sety0(y)
+
+    def step(self, u = None):
+        ''' 
+            STP Step
+            The direction vector u can be given as a parameter.
+            If not given, it randomly generate a direction using the distribution parameter
+                (-dd in script, self.rtype)
+        '''
+        if self.t==0:
+            self.stopiter()
+            if self.status != None:
+                return self.function_evals, self.x, self.status
+        # Take step of optimizer
+        if u == None:
+            # generate a random direction
+            if self.rtype == 'Box':
+                u = ot.sampling( n_samp = 1, dim = self.n, randtype = self.rtype,
+                            distparam = {'coord': ot.idx2coord(np.random.randint(0, np.size(self.x))),
+                                'windowsz': int(np.round(np.sqrt(np.prod(self.Atk.viewsize[2:4])*self.p))),
+                                'ImSize': self.Atk.viewsize[2:4]
+                                }
+                            )
+            elif self.rtype == 'Uniform':
+                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.rtype)
+            elif self.rtype == 'Coord':
+                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.dist_dir)
+
+            # normalize
+            u /= np.linalg.norm(u)
+        gamma = self.gamma_init/np.sqrt(self.t+1)
+        
+        # computing self.f( ) automatically replaces xmin, fmin if new min is found
+        _ = self.f(self.proj(self.x + gamma*u))
+        _ = self.f(self.proj(self.x - gamma*u))
+        self.x = self.xmin
+        self.fval = self.fmin
+
+        self.ximg = self.Atk.xmap(self.x)
+
+        self.t += 1
+        self.stopiter()
+        # decrease p as #iter increases
+        if self.t in [2,10,40,250,500,800,1200,1600]:
+            self.p /= 2.
+        if self.status != None:
+            return self.function_evals, self.x, self.status
+        else:
+            return self.function_evals, None, None   
+
 
 class NS(OptForAttack):
     '''

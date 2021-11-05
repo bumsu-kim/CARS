@@ -26,7 +26,6 @@ def opt_setup(Otype, param):
         param['metric'] = 'inf'
         
     if Otype.upper() == 'RING':
-        
         if 'useFIM' not in param:
             param['useFIM'] = False
         if 'm' not in param:
@@ -44,6 +43,12 @@ def opt_setup(Otype, param):
         opt = optimizers.CARS(param, y0 = None,f = None)
     elif Otype.upper() == 'SQUARE':
         opt = optimizers.SquareATK(param, y0 = None, f = None)
+    elif Otype.upper() == 'STP':
+        opt = optimizers.STP(param, y0=None, f=None)
+    elif Otype.upper() == 'SMTP':
+        opt = optimizers.SMTP(param, y0=None, f=None)
+    elif Otype.upper() == 'NS':
+        opt = optimizers.NS(param, y0=None, f=None)
     return opt
 
 def vec2Img(vec):
