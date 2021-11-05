@@ -1,0 +1,16 @@
+optimizer,CARS
+name,CARS_nq_5
+dim,784
+h,1.0
+budget,10000
+atk.c,2.0
+atk.kappa,20.0
+atk.eps,0.2
+normalize,False
+constrained,True
+nq,5
+hNQ,2.0
+debug_mode,False
+momentum,False
+target_fval,None
+metric,inf

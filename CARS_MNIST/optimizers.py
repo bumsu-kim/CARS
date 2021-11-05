@@ -425,7 +425,7 @@ class SMTP(OptForAttack):
         super().__init__(param, y0, f)
         self.Otype = 'SMTP'
         self.beta = 0.5
-        self.v = np.zeros((1, self.n))
+        self.v = np.zeros(self.n)
         self.gamma_init = 1. # determines the sampling radius
         self.p = self.wsp
         
@@ -504,7 +504,7 @@ class STP(OptForAttack):
         self.Otype = 'STP'
         self.gamma_init = 1. # determines the sampling radius
         self.p = self.wsp
-        
+
     def sety0(self, y):
         super().sety0(y)
 
