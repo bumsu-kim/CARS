@@ -48,7 +48,7 @@ if __name__ == "__main__":
     '''
     parser = argparse.ArgumentParser(formatter_class = argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-o", "--oname", type=str, default="CARS",
-                        help = "Allowed inputs: CARS, SQUARE")
+                        help = "Allowed inputs: CARS, SQUARE, STP, SMTP, NS, SPSA, SPSA2")
     parser.add_argument("-t", "--tid", nargs = '+', type=int,
                         help = "Starting/Final Test set ID (TID). Between 0 and 1135.\nStarting TID must be given. Final is optional") 
     parser.add_argument("-b", "--budget", type = int, default = 10000,
@@ -71,14 +71,14 @@ if __name__ == "__main__":
                         help = "Show the success rate, average/median #queries every [display_freq] tid's.")
     parser.add_argument("-wsp","--window_size_param", type=float, default=0.2,
                         help = "Window size parameter for Square distribution. win sz = sqrt(p*width*height)")
-    parser.add_argument("-dd", "--dist_dir", type=str, default="square",
-                        help = "Distribution of random directions. Default = square. Options: unif (Uniform on a sphere = Standard Normal), coord (random coordinate basis, unif)")
+    parser.add_argument("-dd", "--dist_dir", type=str, default="unif",
+                        help = "Distribution of random directions. Default = unif. Options: square (square vectors), coord (random coordinate basis, unif)")
 
     args = vars(parser.parse_args())
     print(args)
 
     oname = args['oname']
-    dist_dir = args['dist_dir']
+    dist_dir = "square" if oname in ["CARS", "SQUARE"] else args['dist_dir'] # square for CARS
     tids = args['tid'] # testset id (from - to). More than 2 inputs --> ignored
     tid_from = tids[0]
     if len(tids)>1:

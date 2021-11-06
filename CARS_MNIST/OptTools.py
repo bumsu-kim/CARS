@@ -31,17 +31,17 @@ def sampling(n_samp, dim, randtype = 'Gaussian', distparam = None):
         else:
             return np.random.normal(distparam['mean'], distparam['std'], size = (n_samp, dim)) # Gaussian
     elif randtype == 'Uniform':
-        if n_samp > 1:
-            mat = np.random.normal(size = (n_samp, dim)) # Gaussian
-            norms = np.linalg.norm(mat,axis=1) # to Normalize
-            if distparam == None:
-                return mat/norms[:,None]
-            else:
-                return mat/norms[:,None]*distparam['rad'] + np.matlib.repmat(distparam['mean'],n_samp,1)
+        # if n_samp > 1:
+        mat = np.random.normal(size = (n_samp, dim)) # Gaussian
+        norms = np.linalg.norm(mat,axis=1) # to Normalize
+        if distparam == None:
+            return mat/norms[:,None]
         else:
-            vec = np.random.normal(size = dim) # Gaussian
-            norm = np.linalg.norm(vec) # to Normalize
-            return vec/norm
+            return mat/norms[:,None]*distparam['rad'] + np.matlib.repmat(distparam['mean'],n_samp,1)
+        # else:
+        #     vec = np.random.normal(size = dim) # Gaussian
+        #     norm = np.linalg.norm(vec) # to Normalize
+        #     return vec/norm
         
     elif randtype == 'Coord':
         if distparam == None:
