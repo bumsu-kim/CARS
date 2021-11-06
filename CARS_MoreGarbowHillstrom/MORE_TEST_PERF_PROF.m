@@ -4,15 +4,16 @@
 
 
 %% Problem Setting
-ftns = 1:34; % More-Garbow-Hillstrom test functions
+% ftns = 1:34; % More-Garbow-Hillstrom test functions
+ftns = 1:20;
 rep = 1; % repetitions to average
-eps = 1e-1; % target accurcay (1e-1, 1e-3, 1e-5 for More), (1e-7 for Quartic)
-budget = 2e3; % budget (default = 2e5)
-verbose = 1; % verbose option (0, 1, 2)
+eps = 0; 1e-7; % target accurcay (1e-1, 1e-3, 1e-5 for More), (1e-7 for Quartic)
+budget = 2e6; % budget (default = 2e5)
+verbose = 0; % verbose option (0, 1, 2)
 showplot = 1; % show performance profile plot
 noise_lvl = 0; % eps*1e-1; % noise level (default = 0), (default = eps*1e-1 for noisy case)
 
-str_to_add = 'description_on_experiment_here'; % put a description on the current experiment here
+str_to_add = 'Nov6'; % put a description on the current experiment here
 
 rM = 1e20; % Use any sufficiently large number (default = 1e20)
 xlims = [0, 12]; % x-axis limits
@@ -23,22 +24,24 @@ xlims = [0, 12]; % x-axis limits
 save(['EVALS_',num2str(eps),'_',date,'_',str_to_add]);
 disp(' ');
 
-% save algorithm names
-algnames = cell(length(Results),1);
-for i=1:length(Results)
-    algnames{i} = Results{i}.name;
+%% save algorithm names
+algnames = cell(length(Results{1}),1);
+for i=1:length(Results{1})
+    algnames{i} = Results{1}{i}.name;
 end
 
-% plot performance profiles
-[tau, rho, r] = performance_profile(algnames, EVALS, budget, rM, xlims, eps, showplot);
-save(['perf_prof_',num2str(eps),'_',num2str(noise_lvl),'_',date],'tau','rho');
+% % plot performance profiles
+% [tau, rho, r] = performance_profile(algnames, EVALS, budget, rM, xlims, eps, showplot);
+% save(['perf_prof_',num2str(eps),'_',num2str(noise_lvl),'_',date],'tau','rho');
 
 
 %% Use this for plotting a Single function/problem result (e.g. Noisy Quartic)
 
-% disp('Evaluation done. Plotting');
+disp('Evaluation done. Plotting');
 % figure(); hold on;
-% Opts_to_disp = 1:length(Results);
+ftn_num = 4;
+Opts_to_disp = 1:length(Results{ftn_num});
+% Opts_to_disp = [1, 2, 3, 4, 5, 6, 7, 8];
 % for s= Opts_to_disp
 %     linewidth = 2;
 %     if s==1 || s==2 % CARS, CARS-NQ
@@ -50,14 +53,18 @@ save(['perf_prof_',num2str(eps),'_',num2str(noise_lvl),'_',date],'tau','rho');
 %     else
 %         line_spec = '-';
 %     end
-%     if (s==3) % only provides the total number of queries
-%         plot(1:2:Results{s}.num_queries, log10(Results{s}.objval_seq), line_spec, 'LineWidth', linewidth);
-%     else 
-%         plot(Results{s}.num_queries, log10(Results{s}.objval_seq), line_spec, 'LineWidth', linewidth);
-%     end
+% %     if (s==3) % only provides the total number of queries
+% %         plot(1:2:Results{s}.num_queries, Results{s}.objval_seq, line_spec, 'LineWidth', linewidth);
+% %     else 
+%         plot(Results{ftn_num}{s}.num_queries, Results{ftn_num}{s}.objval_seq, line_spec, 'LineWidth', linewidth);
+% %     end
 % end
 % fontsize=16;
 % legend(algnames{Opts_to_disp}, 'Location', 'best','Orientation','vertical');
 % xlim([0,budget]);
+% set(gca,'YScale','log')
 % xlabel('Function Queries', 'FontSize', fontsize);
-% ylabel('$log_{10}(f(x))$', 'FontSize', fontsize, 'Interpreter','latex');
+% ylabel('$f(x)$', 'FontSize', fontsize, 'Interpreter','latex');
+%%
+VariancePlot;
+

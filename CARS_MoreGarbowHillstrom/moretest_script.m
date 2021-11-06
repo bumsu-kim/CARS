@@ -3,9 +3,9 @@
 again = false;
 %---------------------------
 
-ProbType = 'MOR'; % More-Garbow-Hillstrom 34 problems
+% ProbType = 'MOR'; % More-Garbow-Hillstrom 34 problems
 % ProbType = 'NMO'; % Noisy More-Garbow-Hillstrom 34 problems
-% ProbType = 'QUA'; % quartic, noisy
+ProbType = 'QUA'; % quartic, noisy
 Param_Settings;
 
 tic;
