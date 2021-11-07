@@ -30,6 +30,7 @@ import utils
 from datetime import datetime
 import os #to make dir
 import argparse
+import random
 
 # import our optimizers/helpers
 from DataLoaders import MNIST_Loaders
@@ -165,7 +166,10 @@ if __name__ == "__main__":
     Set the test data, and the save directory before attack
     '''
     # Choose the data and set the save directory
-    TEST_IDS = [i for i in range(tid_from,tid_to)] # set test data to attack
+    if tid_from < 1135:
+        TEST_IDS = [i for i in range(tid_from,tid_to)] # set test data to attack
+    else: # tid_from > 1135, it will choose "tid_to" number of random samples 
+        TEST_IDS = random.sample(range(0,1135), tid_to) # randomly choose a part of data
     savedir = f'Results_{name_to_save}_{tid_from}' # directory to save the results
     if not os.path.exists(savedir):
                 os.makedirs(savedir)

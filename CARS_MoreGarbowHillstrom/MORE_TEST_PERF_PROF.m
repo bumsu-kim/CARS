@@ -5,15 +5,15 @@
 
 %% Problem Setting
 % ftns = 1:34; % More-Garbow-Hillstrom test functions
-ftns = 1:20;
+ftns = 1:40;
 rep = 1; % repetitions to average
 eps = 0; 1e-7; % target accurcay (1e-1, 1e-3, 1e-5 for More), (1e-7 for Quartic)
 budget = 2e6; % budget (default = 2e5)
 verbose = 0; % verbose option (0, 1, 2)
-showplot = 1; % show performance profile plot
-noise_lvl = 0; % eps*1e-1; % noise level (default = 0), (default = eps*1e-1 for noisy case)
+showplot = 0; % show performance profile plot
+noise_lvl = 1e-7; % eps*1e-1; % noise level (default = 0), (default = eps*1e-1 for noisy case)
 
-str_to_add = 'Nov6'; % put a description on the current experiment here
+str_to_add = 'Nov6_noisy_quad'; % put a description on the current experiment here
 
 rM = 1e20; % Use any sufficiently large number (default = 1e20)
 xlims = [0, 12]; % x-axis limits

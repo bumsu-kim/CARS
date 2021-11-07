@@ -9,8 +9,8 @@ fvallow = cell(8,1);
 fvalhigh = cell(8,1);
 % CI = tinv([.05 .95], nftns-1);
 Opts_to_disp = [1, 2, 3, 4, 5, 6, 7, 8];
-low_percentile = 0.025;
-high_percentile = 0.975;
+low_percentile = 0.05;
+high_percentile = 0.95;
 for s = Opts_to_disp
     qvals{s} = Results{1}{s}.num_queries'; % row vec
     fvals{s} = zeros(nftns, length(qvals{s}));
@@ -40,6 +40,9 @@ for s= Opts_to_disp
         line_spec = '-';
     end
     fillparam = floor(length(qvals{s})/100);
+    if s==8 % adadgs
+        fillparam = 1;
+    end
     qv = qvals{s}(1:fillparam:end);
     fl = fvallow{s}(1:fillparam:end);
     fh = fvalhigh{s}(1:fillparam:end);

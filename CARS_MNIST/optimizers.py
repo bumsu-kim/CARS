@@ -672,12 +672,14 @@ class NS(OptForAttack):
             # normalize
             u /= np.linalg.norm(u)
         
-        self.f(self.proj(self.x + self.r*u))
-        
-        fmin, xmin = self.CARS_step(u, self.r)
-        self.x = xmin
+        fp = self.f(self.x + self.r*u)
+        d = (fp-self.fval)/self.r
+        xnew = self.proj(self.x + self.alpha*self.r*u)
+        _ = self.f(xnew) # will automatically update the min
+
+        self.x = self.xmin
+        self.fval = self.fmin
         self.ximg = self.Atk.xmap(self.x)
-        self.fval = fmin
 
         self.t += 1
         self.stopiter()

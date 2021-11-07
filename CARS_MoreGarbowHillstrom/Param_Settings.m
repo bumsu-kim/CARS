@@ -181,8 +181,8 @@ if ~again
         n = 20;
         lambda = +0.01;%1e-2;
         rk = n;
-%         A = randn(n, rk); A = A*A'; A = A/trace(A)*n + lambda*eye(n);
-        load('constA.mat');
+        A = randn(n, rk); A = A*A'; A = A/trace(A)*n + lambda*eye(n);
+%         load('constA.mat');
         alpha =  0.1*ones(n,1);
         f_M = @(x) 0.5*dot(x,A*x);
 %         f_M = @(x) dot(alpha, x.^4) + 0.5*dot(x,A*x);
@@ -200,8 +200,8 @@ if ~again
     elseif strcmp(ProbType, 'MOR')
         f = @(x) sum(f_M(x).^2); % Noiseless More
     else
-        f = @(x) f_M(x); % Noiseless quartic
-%         f = @(x) sum(f_M(x)) + noise(x, freq, noise_lvl*(fx0-fmin)) + noise_lvl*(fx0-fmin); % Noisy quartic
+%         f = @(x) f_M(x); % Noiseless quartic
+        f = @(x) sum(f_M(x)) + noise(x, freq, noise_lvl*(fx0-fmin)) + noise_lvl*(fx0-fmin); % Noisy quartic
     end
     
     fparam = struct;
