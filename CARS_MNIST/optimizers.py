@@ -675,7 +675,7 @@ class NS(OptForAttack):
         
         fp = self.f(self.x + self.r*u)
         d = (fp-self.fval)/self.r
-        xnew = self.proj(self.x + self.alpha*d*u)
+        xnew = self.proj(self.x - self.alpha*d*u)
         _ = self.f(xnew) # will automatically update the min
 
         self.x = self.xmin
