@@ -639,7 +639,8 @@ class NS(OptForAttack):
                  Thus the window size (width/height) is sqrt(p)*28 for MNIST imgs
         '''
         self.p = self.wsp
-        self.alpha = 1./4/(self.n+4) # nesterov
+        # self.alpha = 1./4/(self.n+4) # nesterov -- nor working properly
+        self.alpha = 0.5
 
     def sety0(self, y):
         super().sety0(y)
