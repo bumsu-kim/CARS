@@ -639,6 +639,7 @@ class NS(OptForAttack):
                  Thus the window size (width/height) is sqrt(p)*28 for MNIST imgs
         '''
         self.p = self.wsp
+        self.alpha = 1./4/(self.n+4) # nesterov
 
     def sety0(self, y):
         super().sety0(y)
@@ -674,7 +675,7 @@ class NS(OptForAttack):
         
         fp = self.f(self.x + self.r*u)
         d = (fp-self.fval)/self.r
-        xnew = self.proj(self.x + self.alpha*self.r*u)
+        xnew = self.proj(self.x + self.alpha*d*u)
         _ = self.f(xnew) # will automatically update the min
 
         self.x = self.xmin
