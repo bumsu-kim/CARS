@@ -72,14 +72,15 @@ if __name__ == "__main__":
                         help = "Show the success rate, average/median #queries every [display_freq] tid's.")
     parser.add_argument("-wsp","--window_size_param", type=float, default=0.2,
                         help = "Window size parameter for Square distribution. win sz = sqrt(p*width*height)")
-    parser.add_argument("-dd", "--dist_dir", type=str, default="unif",
+    parser.add_argument("-dd", "--dist_dir", type=str, default="none",
                         help = "Distribution of random directions. Default = unif. Options: square (square vectors), coord (random coordinate basis, unif)")
 
     args = vars(parser.parse_args())
     print(args)
 
     oname = args['oname']
-    dist_dir = "square" if oname in ["CARS", "SQUARE"] else args['dist_dir'] # square for CARS
+    dist_dir = args['dist_dir'] if args['dist_dir'] != "none"\
+                                else ("square" if oname in ["CARS", "SQUARE"] else "unif") # square for CARS
     tids = args['tid'] # testset id (from - to). More than 2 inputs --> ignored
     tid_from = tids[0]
     if len(tids)>1:

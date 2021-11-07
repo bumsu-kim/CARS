@@ -307,6 +307,7 @@ class CARS(OptForAttack):
                  Thus the window size is sqrt(p)*28 for MNIST imgs
         '''
         self.p = self.wsp
+        print(f"dist type = {self.rtype}")
 
     def sety0(self, y):
         super().sety0(y)
@@ -339,6 +340,8 @@ class CARS(OptForAttack):
 
             # normalize
             u /= np.linalg.norm(u)
+        # unz = np.sum(np.abs(u)>0)
+        # print(f"t = {self.t}, #non-zero elts of u = {unz}, avg of non-zero elts = {np.sum(u)/unz}")
         fmin, xmin = self.CARS_step(u, self.r)
         self.x = xmin
         self.ximg = self.Atk.xmap(self.x)
