@@ -61,7 +61,7 @@ class OptForAttack(BaseOptimizer):
         self.dist_dir = param['dist_dir']
         if self.dist_dir.upper() == 'SQUARE':
             self.rtype = 'Box'
-        elif self.dist_dir.upper() in ['UNIF', 'NORMAL', 'GAUSSIAN']:
+        elif self.dist_dir.upper() in ['UNIF', 'NORMAL', 'GAUSSIAN', "UNIFORM"]:
             self.rtype = 'Uniform'
         elif self.dist_dir.upper() == 'COORD':
             self.rtype = 'Coord'

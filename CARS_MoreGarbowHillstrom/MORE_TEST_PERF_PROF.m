@@ -19,9 +19,10 @@ rM = 1e20; % Use any sufficiently large number (default = 1e20)
 xlims = [0, 12]; % x-axis limits
 
 %% Solve and analyze
+% solve
 [EVALS, Results] = more_test(ftns, rep, eps, noise_lvl, budget, verbose);
-
-save(['EVALS_',num2str(eps),'_',date,'_',str_to_add]);
+%% Save
+save(['EVALS_',num2str(eps),'_',date,'_',str_to_add],'-v7.3');
 disp(' ');
 
 %% save algorithm names
