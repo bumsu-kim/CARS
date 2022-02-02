@@ -24,7 +24,6 @@ class OptForAttack(BaseOptimizer):
         '''
         
         self.n = param['dim'] # problem dimension, 28*28 for MNIST imgs
-        self.ishift = param['ishift'] # how much we shift the initial point from y0
 
         if y0 != None:
             self.sety0(y0)
@@ -33,7 +32,6 @@ class OptForAttack(BaseOptimizer):
         
         self.stationarity_threshold = param['threshold_first_order_opt']
 
-        self.Atk = param['atk']
         self.function_budget = param['budget']
         self.function_target = param['target_fval']
         self.r = param['r'] # initial sampling radius
@@ -41,7 +39,6 @@ class OptForAttack(BaseOptimizer):
         self.fmin = float('inf')
         self.xmin = None
 
-        self.constrained = param['constrained']
         self.nq = param['nq'] # numerical quadrature points
         
         # record where the min f value came from. (counts [x0, x +- ru, x_{CARS}, x_{boundary}])
