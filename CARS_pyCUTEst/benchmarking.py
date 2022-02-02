@@ -4,8 +4,8 @@ import pandas as pd
 import copy
 import pycutest
 from matplotlib import pyplot as plt
-from benchmarkfunctions import SparseQuadratic, MaxK
-from oracle import Oracle, Oracle_pycutest
+#from benchmarkfunctions import SparseQuadratic, MaxK
+#from oracle import Oracle, Oracle_pycutest
 import optimizers
 
 # from Algorithms.stp_optimizer import STPOptimizer
