@@ -223,13 +223,13 @@ plt.close()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # here, I'll have all of the FUNCTIONS.
-def run_STP_pycutest(problem, x0, function_budget):
-    # STP.
-    print('RUNNING ALGORITHM STP....')
+def run_CARS_pycutest(problem, x0, function_budget):
+    # CARS.
+    print('RUNNING ALGORITHM CARS....')
     p = problem
     # direction_vector_type = 0  # original.
-    # direction_vector_type = 1  # gaussian.
-    direction_vector_type = 2  # uniform from sphere.
+    # direction_vector_type = '1  # gaussian.
+    direction_vector_type = 'UNIF'  # uniform from sphere.
     # direction_vector_type = 3  # rademacher.
     a_k = 0.001  # step-size.
     x0_stp = copy.copy(x0)
@@ -237,18 +237,20 @@ def run_STP_pycutest(problem, x0, function_budget):
     '''
     p.obj(x, Gradient=False) -> method which evaluates the function at x.
     '''
-    oracle_stp = Oracle_pycutest(p.obj)  # comparison oracle.
-    # STP instance.
-    #stp1 = STPOptimizer(oracle_stp, direction_vector_type, x0_stp, n, a_k, p.obj, 2 * function_budget)
+    #oracle_stp = Oracle_pycutest(p.obj)  # comparison oracle.
+    
+    # Instantiate the CARS optimizer object
     r0 = 0.001 # initial sampling radius
     param = {
         'dim': n, # problem dim
         'r': r0, # sampling radius
         'budget': function_budget,
         'nq': 0, # not CARS-NQ
-        'dist_dir': 'UNIF'
+        'dist_dir': 'UNIF',
+        'target_fval': None, # no min vals known
+        'threshold_first_order_opt': 1e-10 # use first order optimality condition instead
     }
-    cars_orig = optimizers.CARS(param, y0 = None, f = p.obj)
+    cars_orig = optimizers.CARS(param, y0 = x0, f = p.obj)
     # step.
     termination = False
     prev_evals = 0
@@ -258,159 +260,160 @@ def run_STP_pycutest(problem, x0, function_budget):
     print('solution: ', solution)
     # plot.
     plt.plot(func_value)
-    plt.title('STP - linear.')
+    plt.title('CARS - linear.')
     #plt.show()
     plt.close()
     plt.semilogy(func_value)
-    plt.title('STP - log.')
-    #plt.show()
-    plt.close()
-    print('function evaluation at solution: ', func_value[-1])
-    return func_value[-1]
-
-def run_GLD_pycutest(problem, x0, function_budget):
-    # GLD.
-    print('RUNNING ALGORITHM GLD....')
-    p = problem
-    R_ = 1e-1
-    r_ = 1e-4
-    x0_gld = copy.copy(x0)
-    n = len(x0_gld)  # problem dimension.
-    '''
-    p.obj(x, Gradient=False) -> method which evaluates the function at x.
-    '''
-    oracle_gld = Oracle_pycutest(p.obj)  # comparison oracle.
-    # GLD instance.
-    gld1 = GLDOptimizer(oracle_gld, p.obj, x0_gld, R_, r_, 2 * function_budget)
-    # step.
-    termination = False
-    prev_evals = 0
-    while termination is False:
-        solution, func_value, termination = gld1.step()
-        #print('current value: ', func_value[-1])
-    print('solution: ', solution)
-    # plot.
-    plt.plot(func_value)
-    plt.title('GLD - linear.')
-    #plt.show()
-    plt.close()
-    plt.semilogy(func_value)
-    plt.title('GLD - log.')
+    plt.title('CARS - log.')
     #plt.show()
     plt.close()
     print('function evaluation at solution: ', func_value[-1])
     return func_value[-1]
 
 
-def run_signOPT_pycutest(problem, x0, function_budget):
-    # SignOPT.
-    print('RUNNING ALGORITHM SIGNOPT....')
-    p = problem
-    '''
-    m = 100
-    '''
-    # new value:
-    # tune hyperparameter.
-    m = 10
-    x0_signopt = copy.copy(x0)
-    n = len(x0_signopt)  # problem dimension.
-    step_size = 0.2
-    r = 0.1
-    '''
-    p.obj(x, Gradient=False) -> method which evaluates the function at x.
-    '''
-    oracle_signopt = Oracle_pycutest(p.obj)  # comparison oracle.
-    # signOPT instance.
-    signopt1 = SignOPT(oracle_signopt, function_budget, x0_signopt, m, step_size, r, debug=False, function=p.obj)
-    # step.
-    for i in range(function_budget - 1):
-        #print(i)
-        signopt1.step()
-    # plot.
-    plt.plot(signopt1.f_vals)
-    plt.title('SignOPT - linear.')
-    #plt.show()
-    plt.close()
-    plt.semilogy(signopt1.f_vals)
-    plt.title('SignOPT - log.')
-    #plt.show()
-    plt.close()
-    print('function evaluation at solution: ', signopt1.f_vals[-1])
-    return signopt1.f_vals[-1]
+# def run_GLD_pycutest(problem, x0, function_budget):
+#     # GLD.
+#     print('RUNNING ALGORITHM GLD....')
+#     p = problem
+#     R_ = 1e-1
+#     r_ = 1e-4
+#     x0_gld = copy.copy(x0)
+#     n = len(x0_gld)  # problem dimension.
+#     '''
+#     p.obj(x, Gradient=False) -> method which evaluates the function at x.
+#     '''
+#     oracle_gld = Oracle_pycutest(p.obj)  # comparison oracle.
+#     # GLD instance.
+#     gld1 = GLDOptimizer(oracle_gld, p.obj, x0_gld, R_, r_, 2 * function_budget)
+#     # step.
+#     termination = False
+#     prev_evals = 0
+#     while termination is False:
+#         solution, func_value, termination = gld1.step()
+#         #print('current value: ', func_value[-1])
+#     print('solution: ', solution)
+#     # plot.
+#     plt.plot(func_value)
+#     plt.title('GLD - linear.')
+#     #plt.show()
+#     plt.close()
+#     plt.semilogy(func_value)
+#     plt.title('GLD - log.')
+#     #plt.show()
+#     plt.close()
+#     print('function evaluation at solution: ', func_value[-1])
+#     return func_value[-1]
 
-def run_SCOBO_pycutest(problem, x0, function_budget):
-    # SCOBO.
-    print('RUNNING ALGORITHM SCOBO....')
-    p = problem
-    m_scobo = 100  # should always be larger than s_exact.
-    x0_scobo = copy.copy(x0)
-    n = len(x0_scobo)  # problem dimension.
-    stepsize = 0.01
-    # s_exact = 20
-    s_exact = 0.1*n
-    r = 0.1
-    '''
-    p.obj(x, Gradient=False) -> method which evaluates the function at x.
-    '''
-    oracle_scobo = Oracle_pycutest(p.obj)  # comparison oracle.
-    # SCOBO instance.
-    scobo1 = SCOBOoptimizer(oracle_scobo, stepsize, function_budget, x0_scobo, r, m_scobo, s_exact, objfunc=p.obj)
-    # step.
-    for i in range(function_budget):
-        #print(i)
-        err = scobo1.step()
-        #print(err)
-    # plot.
-    plt.plot(scobo1.function_vals)
-    plt.title('SCOBO - linear.')
-    #plt.show()
-    plt.close()
-    plt.semilogy(scobo1.function_vals)
-    plt.title('SCOBO - log.')
-    #plt.show()
-    plt.close()
-    print('function evaluation at solution: ', scobo1.function_vals[-1])
-    return scobo1.function_vals[-1]
 
-def run_CMA_pycutest(problem, x0, function_budget):
-    # CMA.
-    print('RUNNING ALGORITHM CMA....')
-    p = problem
-    m_cma = 100
-    x0_cma = copy.copy(x0)
-    step_size_cma = 0.2
-    r = 0.1
-    lam = 10
-    mu = 1
-    sigma = 0.5
-    '''
-    p.obj(x, Gradient=False) -> method which evaluates the function at x.
-    '''
-    oracle_cma = Oracle_pycutest(p.obj)  # comparison oracle.
-    # CMA instance.
-    all_func_vals = []
-    cma1 = CMA(oracle_cma, function_budget, x0_cma, lam, mu, sigma, function=p.obj)
-    # step.
-    for ij in range(function_budget):
-        val = cma1.step()
-        print(str(ij) + ': ' + str(val))
-        # handling error of convergence.
-        if ij > 1:
-            if np.abs(val - all_func_vals[-1]) < 1e-6:
-                all_func_vals.append(val)
-                break
-        all_func_vals.append(val)
-    # plot.
-    plt.plot(all_func_vals)
-    plt.title('CMA - linear.')
-    #plt.show()
-    plt.close()
-    plt.semilogy(all_func_vals)
-    plt.title('CMA - log.')
-    #plt.show()
-    plt.close()
-    print('function evaluation at solution: ', all_func_vals[-1])
-    return all_func_vals[-1]
+# def run_signOPT_pycutest(problem, x0, function_budget):
+#     # SignOPT.
+#     print('RUNNING ALGORITHM SIGNOPT....')
+#     p = problem
+#     '''
+#     m = 100
+#     '''
+#     # new value:
+#     # tune hyperparameter.
+#     m = 10
+#     x0_signopt = copy.copy(x0)
+#     n = len(x0_signopt)  # problem dimension.
+#     step_size = 0.2
+#     r = 0.1
+#     '''
+#     p.obj(x, Gradient=False) -> method which evaluates the function at x.
+#     '''
+#     oracle_signopt = Oracle_pycutest(p.obj)  # comparison oracle.
+#     # signOPT instance.
+#     signopt1 = SignOPT(oracle_signopt, function_budget, x0_signopt, m, step_size, r, debug=False, function=p.obj)
+#     # step.
+#     for i in range(function_budget - 1):
+#         #print(i)
+#         signopt1.step()
+#     # plot.
+#     plt.plot(signopt1.f_vals)
+#     plt.title('SignOPT - linear.')
+#     #plt.show()
+#     plt.close()
+#     plt.semilogy(signopt1.f_vals)
+#     plt.title('SignOPT - log.')
+#     #plt.show()
+#     plt.close()
+#     print('function evaluation at solution: ', signopt1.f_vals[-1])
+#     return signopt1.f_vals[-1]
+
+# def run_SCOBO_pycutest(problem, x0, function_budget):
+#     # SCOBO.
+#     print('RUNNING ALGORITHM SCOBO....')
+#     p = problem
+#     m_scobo = 100  # should always be larger than s_exact.
+#     x0_scobo = copy.copy(x0)
+#     n = len(x0_scobo)  # problem dimension.
+#     stepsize = 0.01
+#     # s_exact = 20
+#     s_exact = 0.1*n
+#     r = 0.1
+#     '''
+#     p.obj(x, Gradient=False) -> method which evaluates the function at x.
+#     '''
+#     oracle_scobo = Oracle_pycutest(p.obj)  # comparison oracle.
+#     # SCOBO instance.
+#     scobo1 = SCOBOoptimizer(oracle_scobo, stepsize, function_budget, x0_scobo, r, m_scobo, s_exact, objfunc=p.obj)
+#     # step.
+#     for i in range(function_budget):
+#         #print(i)
+#         err = scobo1.step()
+#         #print(err)
+#     # plot.
+#     plt.plot(scobo1.function_vals)
+#     plt.title('SCOBO - linear.')
+#     #plt.show()
+#     plt.close()
+#     plt.semilogy(scobo1.function_vals)
+#     plt.title('SCOBO - log.')
+#     #plt.show()
+#     plt.close()
+#     print('function evaluation at solution: ', scobo1.function_vals[-1])
+#     return scobo1.function_vals[-1]
+
+# def run_CMA_pycutest(problem, x0, function_budget):
+#     # CMA.
+#     print('RUNNING ALGORITHM CMA....')
+#     p = problem
+#     m_cma = 100
+#     x0_cma = copy.copy(x0)
+#     step_size_cma = 0.2
+#     r = 0.1
+#     lam = 10
+#     mu = 1
+#     sigma = 0.5
+#     '''
+#     p.obj(x, Gradient=False) -> method which evaluates the function at x.
+#     '''
+#     oracle_cma = Oracle_pycutest(p.obj)  # comparison oracle.
+#     # CMA instance.
+#     all_func_vals = []
+#     cma1 = CMA(oracle_cma, function_budget, x0_cma, lam, mu, sigma, function=p.obj)
+#     # step.
+#     for ij in range(function_budget):
+#         val = cma1.step()
+#         print(str(ij) + ': ' + str(val))
+#         # handling error of convergence.
+#         if ij > 1:
+#             if np.abs(val - all_func_vals[-1]) < 1e-6:
+#                 all_func_vals.append(val)
+#                 break
+#         all_func_vals.append(val)
+#     # plot.
+#     plt.plot(all_func_vals)
+#     plt.title('CMA - linear.')
+#     #plt.show()
+#     plt.close()
+#     plt.semilogy(all_func_vals)
+#     plt.title('CMA - log.')
+#     #plt.show()
+#     plt.close()
+#     print('function evaluation at solution: ', all_func_vals[-1])
+#     return all_func_vals[-1]
 
 
 '''
@@ -473,36 +476,36 @@ print('number of problems with dimension = 100 or less: ', len(probs_under_100))
 # should be 21.
 # now, I want to iterate through PROBS_UNDER_100 list to create the graph.
 
-stp_err_1 = []
-stp_err_2 = []
-stp_err_3 = []
-stp_err_4 = []
-stp_err_5 = []
-STP_err_list = [stp_err_1, stp_err_2, stp_err_3, stp_err_4, stp_err_5]
-gld_err_1 = []
-gld_err_2 = []
-gld_err_3 = []
-gld_err_4 = []
-gld_err_5 = []
-GLD_err_list = [gld_err_1, gld_err_2, gld_err_3, gld_err_4, gld_err_5]
-signopt_err_1 = []
-signopt_err_2 = []
-signopt_err_3 = []
-signopt_err_4 = []
-signopt_err_5 = []
-SignOPT_err_list = [signopt_err_1, signopt_err_2, signopt_err_3, signopt_err_4, signopt_err_5]
-scobo_err_1 = []
-scobo_err_2 = []
-scobo_err_3 = []
-scobo_err_4 = []
-scobo_err_5 = []
-SCOBO_err_list = [scobo_err_1, scobo_err_2, scobo_err_3, scobo_err_4, scobo_err_5]
-cma_err_1 = []
-cma_err_2 = []
-cma_err_3 = []
-cma_err_4 = []
-cma_err_5 = []
-CMA_err_list = [cma_err_1, cma_err_2, cma_err_3, cma_err_4, cma_err_5]
+CARS_err_1 = []
+CARS_err_2 = []
+CARS_err_3 = []
+CARS_err_4 = []
+CARS_err_5 = []
+CARS_err_list = [CARS_err_1, CARS_err_2, CARS_err_3, CARS_err_4, CARS_err_5]
+# gld_err_1 = []
+# gld_err_2 = []
+# gld_err_3 = []
+# gld_err_4 = []
+# gld_err_5 = []
+# GLD_err_list = [gld_err_1, gld_err_2, gld_err_3, gld_err_4, gld_err_5]
+# signopt_err_1 = []
+# signopt_err_2 = []
+# signopt_err_3 = []
+# signopt_err_4 = []
+# signopt_err_5 = []
+# SignOPT_err_list = [signopt_err_1, signopt_err_2, signopt_err_3, signopt_err_4, signopt_err_5]
+# scobo_err_1 = []
+# scobo_err_2 = []
+# scobo_err_3 = []
+# scobo_err_4 = []
+# scobo_err_5 = []
+# SCOBO_err_list = [scobo_err_1, scobo_err_2, scobo_err_3, scobo_err_4, scobo_err_5]
+# cma_err_1 = []
+# cma_err_2 = []
+# cma_err_3 = []
+# cma_err_4 = []
+# cma_err_5 = []
+# CMA_err_list = [cma_err_1, cma_err_2, cma_err_3, cma_err_4, cma_err_5]
 
 # for problem in list_of_problems_testing:
 for problem in probs_under_100:
@@ -519,29 +522,29 @@ for problem in probs_under_100:
         function_budget_ = 100
         # STP.
         print('invoking STP in a loop....')
-        min1 = run_STP_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        STP_err_list[i].append(min1)
+        min1 = run_CARS_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+        CARS_err_list[i].append(min1)
         print('\n')
-        # GLD.
-        print('invoking GLD in a loop....')
-        min2 = run_GLD_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        GLD_err_list[i].append(min2)
-        print('\n')
-        # SignOPT.
-        print('invoking SignOPT in a loop....')
-        min3 = run_signOPT_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        SignOPT_err_list[i].append(min3)
-        print('\n')
-        # SCOBO.
-        print('invoking SCOBO in a loop....')
-        min4 = run_SCOBO_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        SCOBO_err_list[i].append(min4)
-        print('\n')
-        # CMA.
-        print('invoking CMA in a loop....')
-        min5 = run_CMA_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        CMA_err_list[i].append(min5)
-        print('\n')
+        # # GLD.
+        # print('invoking GLD in a loop....')
+        # min2 = run_GLD_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+        # GLD_err_list[i].append(min2)
+        # print('\n')
+        # # SignOPT.
+        # print('invoking SignOPT in a loop....')
+        # min3 = run_signOPT_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+        # SignOPT_err_list[i].append(min3)
+        # print('\n')
+        # # SCOBO.
+        # print('invoking SCOBO in a loop....')
+        # min4 = run_SCOBO_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+        # SCOBO_err_list[i].append(min4)
+        # print('\n')
+        # # CMA.
+        # print('invoking CMA in a loop....')
+        # min5 = run_CMA_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+        # CMA_err_list[i].append(min5)
+        # print('\n')
 
 # averaging reference....
 """
@@ -549,21 +552,21 @@ multiple_lists = [[2,5,1,9], [4,9,5,10]]
 arrays = [np.array(x) for x in multiple_lists]
 [np.mean(k) for k in zip(*arrays)]
 """
-# average STP.
-arrays_stp = [np.array(x) for x in STP_err_list]
-STP_average_error = [np.mean(k) for k in zip(*arrays_stp)]
-# average GLD.
-arrays_gld = [np.array(x) for x in GLD_err_list]
-GLD_average_error = [np.mean(k) for k in zip(*arrays_gld)]
-# average SignOPT.
-arrays_signopt = [np.array(x) for x in SignOPT_err_list]
-SignOPT_average_error = [np.mean(k) for k in zip(*arrays_signopt)]
-# average SCOBO.
-arrays_scobo = [np.array(x) for x in SCOBO_err_list]
-SCOBO_average_error = [np.mean(k) for k in zip(*arrays_scobo)]
-# average CMA.
-arrays_cma = [np.array(x) for x in CMA_err_list]
-CMA_average_error = [np.mean(k) for k in zip(*arrays_cma)]
+# average CARS.
+arrays_CARS = [np.array(x) for x in CARS_err_list]
+CARS_average_error = [np.mean(k) for k in zip(*arrays_CARS)]
+# # average GLD.
+# arrays_gld = [np.array(x) for x in GLD_err_list]
+# GLD_average_error = [np.mean(k) for k in zip(*arrays_gld)]
+# # average SignOPT.
+# arrays_signopt = [np.array(x) for x in SignOPT_err_list]
+# SignOPT_average_error = [np.mean(k) for k in zip(*arrays_signopt)]
+# # average SCOBO.
+# arrays_scobo = [np.array(x) for x in SCOBO_err_list]
+# SCOBO_average_error = [np.mean(k) for k in zip(*arrays_scobo)]
+# # average CMA.
+# arrays_cma = [np.array(x) for x in CMA_err_list]
+# CMA_average_error = [np.mean(k) for k in zip(*arrays_cma)]
 
 '''
 print('STP: ', STP_err_list)
@@ -571,15 +574,15 @@ print('GLD: ', GLD_err_list)
 print('SignOPT: ', SignOPT_err_list)
 print('SCOBO: ', SCOBO_err_list)
 '''
-print('STP: ', STP_average_error)
-print('GLD: ', GLD_average_error)
-print('SignOPT: ', SignOPT_average_error)
-print('SCOBO: ', SCOBO_average_error)
-print('CMA: ', CMA_average_error)
+print('CARS: ', CARS_average_error)
+# print('GLD: ', GLD_average_error)
+# print('SignOPT: ', SignOPT_average_error)
+# print('SCOBO: ', SCOBO_average_error)
+# print('CMA: ', CMA_average_error)
 
 # list_of_errors = [STP_err_list, GLD_err_list, SignOPT_err_list, SCOBO_err_list]
-list_of_errors = [STP_average_error, GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
-list_of_algorithms = ['STP', 'GLD', 'SignOPT', 'SCOBO', 'CMA']
+list_of_errors = [CARS_average_error,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
+list_of_algorithms = ['CARS',] # 'GLD', 'SignOPT', 'SCOBO', 'CMA']
 
 # I need to make a dataframe with rows = Algorithms and columns = problems.
 # columns = [element for element in list_of_problems_testing]
@@ -592,35 +595,35 @@ for i in range(len(list_of_errors)):
 print(df)
 print(type(df))
 
-path_name = "/Users/ishaslavin/Downloads/oct25_research_AVERAGE_3_CHART_all5algorithms_DF.csv"
+path_name = "/csv/CARS_DF.csv"
 df.to_csv(path_name)
 
 # trying something interesting....
 
-x0_p = p_invoke.x0
-dim_x0 = len(x0_p)
-x0_invoke = np.random.randn(dim_x0)
+# x0_p = p_invoke.x0
+# dim_x0 = len(x0_p)
+# x0_invoke = np.random.randn(dim_x0)
 
-#x0_invoke = p_invoke.x0  # initial value.
-print('dimension of x0: ', len(x0_invoke))
-# x0_invoke = np.random.randn(2)
-function_budget = 10  # max number of iterations.
-# STP invocation.
-print('\n')
-print('invoke STP as a function.')
-#run_STP_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
-# GLD invocation.
-print('\n')
-print('invoke GLD as a function.')
-#run_GLD_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
-# SignOPT invocation.
-print('\n')
-print('invoke SignOPT as a function.')
-#run_signOPT_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
-# SCOBO invocation.
-print('\n')
-print('invoke SCOBO as a function.')
-#run_SCOBO_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
+# #x0_invoke = p_invoke.x0  # initial value.
+# print('dimension of x0: ', len(x0_invoke))
+# # x0_invoke = np.random.randn(2)
+# function_budget = 10  # max number of iterations.
+# # STP invocation.
+# print('\n')
+# print('invoke STP as a function.')
+# #run_STP_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
+# # GLD invocation.
+# print('\n')
+# print('invoke GLD as a function.')
+# #run_GLD_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
+# # SignOPT invocation.
+# print('\n')
+# print('invoke SignOPT as a function.')
+# #run_signOPT_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
+# # SCOBO invocation.
+# print('\n')
+# print('invoke SCOBO as a function.')
+# #run_SCOBO_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
 '''
 ***************************
 '''

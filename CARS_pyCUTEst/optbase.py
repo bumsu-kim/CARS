@@ -50,6 +50,18 @@ class BaseOptimizer(object):
         else:
             return False
 
+    
+    @staticmethod
+    def reachedFirstOrderOptimality(norm_grad, threshold):
+        '''
+        Check the first order optimality condition
+        works only for the problems with 'degree' >= 1
+        '''
+        if norm_grad <= threshold:
+            return True
+        else:
+            return False
+
     @staticmethod
     def report(string_to_print):
         '''Report current state.

@@ -5,7 +5,6 @@ from multiprocessing.dummy import Pool
 import OptTools as ot
 import copy
 from matplotlib import pyplot as plt 
-from scipy.ndimage import gaussian_filter1d as GS #Gaussian Smooting 1D
 
 class OptForAttack(BaseOptimizer):
     '''
@@ -31,19 +30,20 @@ class OptForAttack(BaseOptimizer):
             self.sety0(y0)
         if f != None:
             self.setf(f)
+        
+        self.stationarity_threshold = param['threshold_first_order_opt']
 
         self.Atk = param['atk']
         self.function_budget = param['budget']
         self.function_target = param['target_fval']
-        self.r = param['r'] # sampling radius
+        self.r = param['r'] # initial sampling radius
 
         self.fmin = float('inf')
         self.xmin = None
 
         self.constrained = param['constrained']
         self.nq = param['nq'] # numerical quadrature points
-        self.wsp = param['wsp'] # params for square-attack related methods
-
+        
         # record where the min f value came from. (counts [x0, x +- ru, x_{CARS}, x_{boundary}])
         self.CARScounter = numpy.zeros(4, dtype=int)
         self.alpha = 0.5 # step size param = 1/Lhat
@@ -54,13 +54,11 @@ class OptForAttack(BaseOptimizer):
         self.status = None # stop if 'B'(udget), 'T'(arget), 'S'(uccessful attack)
         self.cvx_counter = 0 # count the convex (f'' along u > 0) iter in CARS()
 
-
-        self.imgsz = self.Atk.viewsize[2:4] # 28*28 for MNIST imgs
-
         # distribution of random directions (default = sq (square))
         self.dist_dir = param['dist_dir']
         if self.dist_dir.upper() == 'SQUARE':
-            self.rtype = 'Box'
+            #self.rtype = 'Box'
+            pass # not supported
         elif self.dist_dir.upper() in ['UNIF', 'NORMAL', 'GAUSSIAN']:
             self.rtype = 'Uniform'
         elif self.dist_dir.upper() == 'COORD':
@@ -69,90 +67,47 @@ class OptForAttack(BaseOptimizer):
             raise Exception(f"dist_dir ({self.dist_dir}) must be one of 'square', 'unif', 'normal', or 'coord'")
 
 
-        # when the domain is bounded set upper/lower bounds
-        if not self.constrained:
-            self.ub = float("inf")
-            self.lb = -float("inf")
-        else:
-            self.ub = 1.
-            self.lb = 0.
-
     ''' 
     Setters
     '''
-    def setAtk(self, Atk):
-        self.Atk = Atk
 
-    def sety0(self, y0): # SEt up the initial point
-        
-        # initial perturbation
-        eps = self.ishift # parameter given in -si option used here
+    def sety0(self, y0): # Set up the initial point
         self.xinit = np.copy(y0)
         self.x = np.copy(y0)
-        
-        # random perturbation with vertical stripes (other choices are also available)
-        vert_perturbation = ot.sampling(n_samp=1, dim = self.n, randtype='Vert',
-                    distparam = {'ImSize':self.Atk.viewsize[2:4]})
-        self.x += eps*vert_perturbation # perturb
-        self.x = self.proj(self.x) # and project onto the feasible set
-
-        self.x = self.Atk.xmap_inv(self.x) # transformed
-        self.ximg = self.Atk.xmap(self.x)
-        self.xmin = self.x
-        # box constraint's boundary
-        self.ubs = np.minimum(self.xinit + eps, 1.0)
-        self.lbs = np.maximum(self.xinit - eps, 0)
 
     def setf(self, f):
-        self.f = lambda x: self.eval(f,x, True)['fval']
-        self.f_norecording = lambda x: self.eval(f, x, False)['fval']
-        self.f_all = lambda x: self.eval(f,x)
-        self.fx = self.eval(f, self.x)
-        self.fval = self.fx['fval']
-        self.fmin = f(self.x)['fval']
+        self.f = lambda x: self.eval(f, x, record_min = True)
+        self.fval = f(self.x)
+        self.fmin = self.fval
+        self.f_norecording = lambda x: self.eval(f, x, record_min = False)
+        self.grad = lambda x: f(x, gradient=True)[1] # does not count as a func eval, nor record the min
 
-    def setAtkAll(self, Atk, y0, f):
-        self.setAtk(Atk)
-        self.sety0(y0)
-        self.setf(f)
-        
     '''
     function evaluation
     '''
     def eval(self, f, x, record_min = True):
         ''' function evaluation at x
         '''
-        self.function_evals += 1
         self.curr_x = x
-        self.curr_ximg = self.Atk.xmap(x)
-        res = f(self.curr_ximg)
-        self.curr_atk_status = res['atk_succ']
+        res = f(self.curr_x)
 
         # record the minimum f
         if record_min:
-            if  self.isinBox(x) and res['fval'] < self.fmin:
+            self.function_evals += 1 # count func evals
+            if  res < self.fmin: # new min found
                 self.xmin = x
-                self.fmin = res['fval']
-        else: # no recording
-            self.function_evals -= 1 # no count 
-
+                self.fmin = res
 
         return res
 
-    '''
-    Check if x is in the feasible set ([0,1]^n)
-    '''
-    # def isinBox(self, x):
-    #     if any(x>self.ubs) or any(x<self.lbs):
-    #         return False
-    #     else:
-    #         return True
+    
+    
 
     '''
     Stopping Condition Check
     'B' -- Max budget reached
     'T' -- Target value reached
-    'S' -- Attack Succeeded
+    'S' -- Stationary (reached First Order Optimality)
     '''
     def stopiter(self):
         # max budget reached
@@ -164,41 +119,11 @@ class OptForAttack(BaseOptimizer):
             if self.reachedFunctionTarget(self.function_target, self.fval):
                 self.status = 'T'
 
-        # # attack succeeded
-        # if self.Atk != None:
-        #     if self.Atk(self.ximg)['atk_succ']:
-        #         # tmp = self.Atk(self.ximg)
-        #         self.status = 'S'
-    
-    # def proj(self, x):
-    #     if self.constrained:
-    #         xnew = self.Atk.xmap_inv(self.Atk.proj(self.Atk.xmap(x)))
-    #         return xnew
-    #     else:
-    #         return self.Atk.proj(x)
+        if self.reachedFirstOrderOptimality(np.linalg.norm(self.grad(self.x)), self.stationarity_threshold):
+            self.status = 'S'
+            
 
-    # def restrict_to_box(self, x_orig, delta, restrict = True): # only for Box constraint
-    #     eps = self.Atk.eps
-    #     x0 = self.Atk.data
-    #     idxp = delta>0
-    #     idxm = delta<0
-    #     if sum(idxp)>0:
-    #         tp = np.min( (self.ubs[idxp] - x_orig[idxp]) / delta[idxp] ) 
-    #     else:
-    #         tp = 9e99 # infty
-    #     if sum(idxm)>0:
-    #         tm = np.min( (x_orig[idxm] - self.lbs[idxm]) / -delta[idxm] ) 
-    #     else:
-    #         tm = 9e99 #infty
-    #     t = np.min( [tp, tm] ) *0.9999 # prevent weird situations from round-off errors
-    #     if restrict:
-    #         if t>1:
-    #             t = 1
-    #     return x_orig + t*delta, t
-
-    
-
-    def CARS_step(self, u, r = None):
+    def CARS_step(self, u, r):
         ''' Curvature Aware (Random) Search Step
         here, we assume the direction u is given.
         d = f',  h= f''
@@ -219,8 +144,6 @@ class OptForAttack(BaseOptimizer):
         fmin .... minimum f value
         xmin .... argmin of f
         '''
-        if r == None:
-            r = self.r
         
         # alpha = 1/Lhat <= 1
         
@@ -296,12 +219,6 @@ class CARS(OptForAttack):
         self.Otype = 'CARS'
         
         
-        ''' Other parameters
-        p ...... Window size parameter. Fraction of pixels being changed
-                 Thus the window size is sqrt(p)*28 for MNIST imgs
-        '''
-        self.p = self.wsp
-
     def sety0(self, y):
         super().sety0(y)
 
@@ -312,7 +229,7 @@ class CARS(OptForAttack):
             If not given, it randomly generate a direction using the distribution parameter
                 (-dd in script, self.rtype)
         '''
-        r = self.r * np.sqrt((self.t+1)/(self.t+2))
+        r = self.r * np.sqrt(1/(self.t+1)) # decaying sampling radius (1/sqrt(k))
         if self.t==0:
             self.stopiter()
             if self.status != None:
@@ -337,14 +254,11 @@ class CARS(OptForAttack):
             u /= np.linalg.norm(u)
         fmin, xmin = self.CARS_step(u, r)
         self.x = xmin
-        self.ximg = self.Atk.xmap(self.x)
         self.fval = fmin
 
         self.t += 1
         self.stopiter()
-        # decrease p as #iter increases
-        #if self.t in [2,10,40,250,500,800,1200,1600]:
-        #    self.p /= 2.
+        
         if self.status != None:
             return self.x, self.function_evals, True # 3rd val = termination or not
         else:
@@ -385,10 +299,14 @@ class SMTP(OptForAttack):
             If not given, it randomly generate a direction using the distribution parameter
                 (-dd in script, self.rtype)
         '''
+
         if self.t==0:
             self.stopiter()
             if self.status != None:
                 return self.function_evals, self.x, self.status
+
+        if self.t>1:
+            self.fminprev = self.fmin # previous min value
         # Take step of optimizer
         if u == None:
             # generate a random direction
