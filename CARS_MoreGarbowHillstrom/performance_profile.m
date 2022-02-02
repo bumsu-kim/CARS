@@ -19,7 +19,8 @@ if showplot
     hold on;
     linewidth = 2;
     fontsize = 20;
-    opts_to_display = [1,2,3,4,5,6,7,8]; % all
+    opts_to_display = 1:length(Rho);
+%     opts_to_display = [1,2,3,4,5,6,7,8]; % all
     for s = opts_to_display
         rs = r(s,:);
         [Tau{s}, Rho{s}] = create_tau_rho(rs);

@@ -43,48 +43,60 @@ Results{i} = CARS(fparam, param, Num_Quad_Pts);
 etime2(i) = toc;
 Results{i}.name = algname{i};
 
-%% STP - variable step size
+%% CARS - Cubic regularization
 i = i+1;
-param.fixed_step = false;
-algname{i} = 'STP-vs';
+algname{i} = 'CARS-CR';
 if verbose>1
     disp(['Starting ', algname{i}, ' ...']);
 end
-Results{i} = SMTP(fparam, param, algname{i}, false);
+tic;
+Num_Quad_Pts = 5;
+Results{i} = CARS_cubic(fparam, param, Num_Quad_Pts);
+etime2(i) = toc;
 Results{i}.name = algname{i};
 
+%% STP - variable step size
+% i = i+1;
+% param.fixed_step = false;
+% algname{i} = 'STP-vs';
+% if verbose>1
+%     disp(['Starting ', algname{i}, ' ...']);
+% end
+% Results{i} = SMTP(fparam, param, algname{i}, false);
+% Results{i}.name = algname{i};
+
 %% SMTP
-i = i+1;
-algname{i} = 'SMTP';
-if verbose>1
-    disp(['Starting ', algname{i}, ' ...']);
-end
-Results{i} = SMTP(fparam, param, algname{i}, true);
-Results{i}.name = algname{i};
+% i = i+1;
+% algname{i} = 'SMTP';
+% if verbose>1
+%     disp(['Starting ', algname{i}, ' ...']);
+% end
+% Results{i} = SMTP(fparam, param, algname{i}, true);
+% Results{i}.name = algname{i};
 
 
 %% Nesterov-Spokoiny for comparison (RGF)
 
-i = i+1;
-algname{i} = 'Nesterov';
-if verbose>1
-    disp(['Starting ', algname{i}, ' ...']);
-end
-tic;
-Results{i} = NesterovRS(fparam,param);
-etime2(i) = toc;
-Results{i}.name = algname{i};
+% i = i+1;
+% algname{i} = 'Nesterov';
+% if verbose>1
+%     disp(['Starting ', algname{i}, ' ...']);
+% end
+% tic;
+% Results{i} = NesterovRS(fparam,param);
+% etime2(i) = toc;
+% Results{i}.name = algname{i};
 
 %% SPSA method
-i = i+1;
-algname{i} = 'SPSA';
-if verbose>1
-    disp(['Starting ', algname{i}, ' ...']);
-end
-tic;
-Results{i} = RealSPSA(fparam,param);
-etime2(i) = toc;
-Results{i}.name = algname{i};
+% i = i+1;
+% algname{i} = 'SPSA';
+% if verbose>1
+%     disp(['Starting ', algname{i}, ' ...']);
+% end
+% tic;
+% Results{i} = RealSPSA(fparam,param);
+% etime2(i) = toc;
+% Results{i}.name = algname{i};
 
 %% 2SPSA
 % i = i+1;
@@ -98,24 +110,13 @@ Results{i}.name = algname{i};
 % Results{i}.name = algname{i};
 
 %% AdaDGS
-i = i+1;
-algname{i} = 'AdaDGS';
-if verbose>1
-    disp(['Starting ', algname{i}, ' ...']);
-end
-tic;
-Num_Quad_Pts = 5;
-Results{i} = AdaDGS(fparam, param, Num_Quad_Pts);
-etime2(i) = toc;
-Results{i}.name = algname{i};
-
-%% CARS - Cubic regularization
-i = i+1;
-algname{i} = 'CARS-CR';
-if verbose>1
-    disp(['Starting ', algname{i}, ' ...']);
-end
-tic;
-Results{i} = CARS_cubic(fparam, param, 0);
-etime2(i) = toc;
-Results{i}.name = algname{i};
+% i = i+1;
+% algname{i} = 'AdaDGS';
+% if verbose>1
+%     disp(['Starting ', algname{i}, ' ...']);
+% end
+% tic;
+% Num_Quad_Pts = 5;
+% Results{i} = AdaDGS(fparam, param, Num_Quad_Pts);
+% etime2(i) = toc;
+% Results{i}.name = algname{i};

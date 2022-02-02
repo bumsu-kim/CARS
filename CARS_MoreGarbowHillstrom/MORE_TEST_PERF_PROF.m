@@ -5,14 +5,14 @@
 
 %% Problem Setting
 ftns = 1:34; % More-Garbow-Hillstrom test functions
-rep = 1; % repetitions to average
-eps = 1e-1; % target accurcay (1e-1, 1e-3, 1e-5 for More), (1e-7 for Quartic)
-budget = 2e3; % budget (default = 2e5)
+rep = 10; % repetitions to average
+eps = 1e-3; % target accurcay (1e-1, 1e-3, 1e-5 for More), (1e-7 for Quartic)
+budget = 2e4; % budget (default = 2e5)
 verbose = 1; % verbose option (0, 1, 2)
 showplot = 1; % show performance profile plot
 noise_lvl = 0; % eps*1e-1; % noise level (default = 0), (default = eps*1e-1 for noisy case)
 
-str_to_add = 'description_on_experiment_here'; % put a description on the current experiment here
+str_to_add = 'CARS_CR_eps1e-3_budg2e4_M1e-1'; % put a description on the current experiment here
 
 rM = 1e20; % Use any sufficiently large number (default = 1e20)
 xlims = [0, 12]; % x-axis limits
@@ -29,7 +29,7 @@ for i=1:length(Results)
     algnames{i} = Results{i}.name;
 end
 
-% plot performance profiles
+%% plot performance profiles
 [tau, rho, r] = performance_profile(algnames, EVALS, budget, rM, xlims, eps, showplot);
 save(['perf_prof_',num2str(eps),'_',num2str(noise_lvl),'_',date],'tau','rho');
 
