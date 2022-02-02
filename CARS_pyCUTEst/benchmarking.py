@@ -521,7 +521,7 @@ for problem in probs_under_100:
         print('dimension of problem: ', len(x0_invoke_))
         function_budget_ = 100
         # STP.
-        print('invoking STP in a loop....')
+        print('invoking CARS in a loop....')
         min1 = run_CARS_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
         CARS_err_list[i].append(min1)
         print('\n')

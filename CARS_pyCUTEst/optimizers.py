@@ -11,7 +11,7 @@ class OptForAttack(BaseOptimizer):
     Base class for RING, SHIPS, CARS and other optimizers for black box adversarial attacks
     Used for common parameter settings
     '''
-    def __init__(self, param, y0 = None, f = None):
+    def __init__(self, param, y0, f):
         '''
             param ..... dict
                         contains hyperparameters (given as options) and
@@ -25,10 +25,10 @@ class OptForAttack(BaseOptimizer):
         
         self.n = param['dim'] # problem dimension, 28*28 for MNIST imgs
 
-        if y0 != None:
-            self.sety0(y0)
-        if f != None:
-            self.setf(f)
+        
+        self.sety0(y0)
+        
+        self.setf(f)
         
         self.stationarity_threshold = param['threshold_first_order_opt']
 
