@@ -96,6 +96,7 @@ class OptForAttack(BaseOptimizer):
             if  res < self.fmin: # new min found
                 self.xmin = x
                 self.fmin = res
+            self.fvalseq[self.t+1] = res # record as a f-value
 
         return res
 
