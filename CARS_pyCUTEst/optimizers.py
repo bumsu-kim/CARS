@@ -41,8 +41,8 @@ class OptForAttack(BaseOptimizer):
 
         self.nq = param['nq'] # numerical quadrature points
         
-        # record where the min f value came from. (counts [x0, x +- ru, x_{CARS}, x_{boundary}])
-        self.CARScounter = numpy.zeros(4, dtype=int)
+        # record where the min f value came from. (counts [x0, x +- ru, x_{CARS}])
+        self.CARScounter = numpy.zeros(3, dtype=int)
         self.alpha = 0.5 # step size param = 1/Lhat
 
         # Initialize values
@@ -155,53 +155,22 @@ class OptForAttack(BaseOptimizer):
             # 1/Lhat estimated from higher order derivatives
             alpha = self.alpha/ ( 0.5 + np.sqrt( 0.25 + np.abs(d*d3max/d2**2/3))) # see proposition 5.3
 
-        if d2 > 1e-8: # when convex
-            xnew, tnew = self.restrict_to_box(self.x, - alpha * d/d2 * u)
-            tnew = tnew * (- alpha * d/d2 )
-            self.cvx_counter += 1 # count this case
-            fxnew = self.f(xnew)
+        #if d2 > 1e-8: # when convex
+        xnew = self.x - alpha*d/d2*u
+        self.cvx_counter += 1 # count this case
+        fxnew = self.f(xnew)
         
-        xnew1, tnew1 = self.restrict_to_box(self.x, - np.sign(d)*u, False) # move max amount along the direction of -d*u
-        tnew1 = tnew1 * (- np.sign(d))
-        fxnew1 = self.f(xnew1)
-        tnew_bd = tnew1
-        fxnew_bd = fxnew1
-            
-        if d2 <= 1e-8  or  fxnew_bd < fxnew:
-            fxnew = fxnew_bd
-            tnew = tnew_bd
-            bd_chosen = True
-        else:
-            bd_chosen = False
-            
-        # self.check_dist(xnew)
         # check min
         if self.fmin == self.fval:
             minidx = 0 # not moved (xmin = x0)
         elif self.fmin == fxnew:
-            if bd_chosen: # min found at the boundary
-                minidx = 3
-            else: # min is x_{CARS}
-                minidx = 2
-        else: # min is either x +- ru 
+            minidx = 2
+        else: # min is either x +- ru
             minidx = 1
         self.CARScounter[minidx] += 1
        
         return self.fmin , self.xmin
     
-
-    # def truncate_search_dir(self, u):
-    #     v = np.copy(u)
-    #     y = self.x + 1e-2*u # also works for u = [rows of directions]
-    #     idx1 = np.logical_or(y>self.ub, y>self.Atk.data+self.Atk.eps)
-    #     idx2 = np.logical_or(y<self.lb, y<self.Atk.data-self.Atk.eps)
-    #     idx = np.logical_or(idx1, idx2)
-    #     v[idx] = 0.
-    #     if np.linalg.norm(v) == 0:
-    #         return v
-    #     v = v/np.linalg.norm(v)
-    #     return v
-        
 
 class CARS(OptForAttack):
     '''
@@ -214,9 +183,9 @@ class CARS(OptForAttack):
         
         super().__init__(param, y0, f)
         self.Otype = 'CARS'
-
+        self.M = 1
         ######### debug mode ########
-        print('shape of x:', np.shape(self.x))
+        #print('shape of x:', np.shape(self.x))
         
         
     def sety0(self, y):
@@ -256,7 +225,7 @@ class CARS(OptForAttack):
             
         u = u.reshape(np.shape(self.x))
         ######### debug mode ########
-        print('shape of u:', np.shape(u))
+        #print('shape of u:', np.shape(u))
         fmin, xmin = self.CARS_step(u, r)
         self.x = xmin
         self.fval = fmin
