@@ -34,8 +34,8 @@ print(sorted(probs))
 # Properties of problem ROSENBR.
 print('\n')
 
-for problem in probs:
-    print(problem + ': ' + str(pycutest.problem_properties(problem)))
+#for problem in probs:
+#    print(problem + ': ' + str(pycutest.problem_properties(problem)))
 
 # all seem to have degree = 2.
 
@@ -462,8 +462,8 @@ list_of_problems_testing = sorted_problems[:10]
 
 probs_under_100 = []
 
-#for p in sorted_problems:
-for p in sorted_problems[:30]: 
+for p in sorted_problems:
+#for p in sorted_problems[:30]: 
     prob = pycutest.import_problem(p)
     x0 = prob.x0
     print('dimension of input vector of FUNCTION ' + str(p) + ': ' + str(len(x0)))
@@ -521,7 +521,7 @@ for problem in probs_under_100:
         x0_invoke_ = p_invoke_.x0
         print('problem name: ', p_invoke_.name)
         print('dimension of problem: ', len(x0_invoke_))
-        function_budget_ = 1000*len(x0_invoke_)
+        function_budget_ = 10000*len(x0_invoke_)
         # STP.
         print('invoking CARS in a loop....')
         min1 = run_CARS_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
