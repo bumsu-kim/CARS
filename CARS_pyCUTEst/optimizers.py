@@ -254,7 +254,7 @@ class CARS(OptForAttack):
             u /= np.linalg.norm(u)
             
             
-        u.reshape(np.shape(self.x))
+        u = u.reshape(np.shape(self.x))
         ######### debug mode ########
         print('shape of u:', np.shape(u))
         fmin, xmin = self.CARS_step(u, r)
