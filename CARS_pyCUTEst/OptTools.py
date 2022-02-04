@@ -112,24 +112,14 @@ def oracles_with_p(f, xs, pool=None):
     #     xlist = [xs[i,:] for i in range(m)]
     #     return np.array(pool.map(f, xlist))
 
-def CentDiff(f, x, h, u, fval, proj = None):
-    h_valid = False
-    h_init = h
-    # proj doesn't do anything if not constrained
-    while not h_valid: # if h too small, increase it
-        xp = x + h*u # proj(x + h*u)
-        xm = x - h*u # proj(x - h*u)
-        ######### debug mode ########
-        #print('shape of xp:', np.shape(xp))
-        fp = f(xp)
-        fm = f(xm)
-        d = (fp-fm)/2./h
-        d2 = (fp - 2*fval + fm)/h**2
-        if min(np.abs(d),np.abs(d2)) > 1e-8:
-            h_valid = True
-            h = h_init # prevent h being too large
-        else:
-            h *= 1.5
+def CentDiff(f, x, h, u, fval, eps proj = None):
+    xp = x + h*u # proj(x + h*u)
+    xm = x - h*u # proj(x - h*u)
+    fp = f(xp)
+    fm = f(xm)
+    d = (fp-fm)/2./h
+    d2 = (fp - 2*fval + fm)/h**2
+    d2 = d2 + eps    
     return d, d2
 
 def NumQuad(f, x, h, u, fval, ATK, GH_pts = 5):

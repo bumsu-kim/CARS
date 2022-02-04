@@ -147,9 +147,9 @@ class OptForAttack(BaseOptimizer):
         
         # alpha = 1/Lhat <= 1
         
-
+        eps = 1e-6 # regularization for d2 (prevent overflow)
         if self.nq == 0: # regular CARS
-            d, d2 = ot.CentDiff(self.f, self.x, r, u, self.fval)
+            d, d2 = ot.CentDiff(self.f, self.x, r, u, self.fval, eps)
             Lhat = 1/2 + np.sqrt(1/4 + self.M*np.abs(d/d2**2/2))
             alpha = 1/Lhat
         else: # CARS-NQ

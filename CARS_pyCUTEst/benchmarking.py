@@ -240,7 +240,7 @@ def run_CARS_pycutest(problem, x0, function_budget):
     #oracle_stp = Oracle_pycutest(p.obj)  # comparison oracle.
     
     # Instantiate the CARS optimizer object
-    r0 = 0.001 # initial sampling radius
+    r0 = 0.01 # initial sampling radius
     param = {
         'dim': n, # problem dim
         'r': r0, # sampling radius
