@@ -519,6 +519,7 @@ for problem in probs_under_100:
         x0_invoke_ = np.random.randn(dim_x0_)
         '''
         x0_invoke_ = p_invoke_.x0
+        print('problem name: ', p_invoke.name)
         print('dimension of problem: ', len(x0_invoke_))
         function_budget_ = 100
         # STP.
