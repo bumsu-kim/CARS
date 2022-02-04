@@ -257,7 +257,7 @@ def run_CARS_pycutest(problem, x0, function_budget):
     while termination is False:
         solution, func_value, termination = cars_orig.step()
         #print('current value: ', func_value[-1])
-    print('solution: ', solution)
+    print('solution: ', solution if len(solution)<=5 else solution[:5])
     # plot.
     plt.plot(func_value)
     plt.title('CARS - linear.')
