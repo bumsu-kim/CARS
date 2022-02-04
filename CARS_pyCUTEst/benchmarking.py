@@ -596,7 +596,7 @@ for i in range(len(list_of_errors)):
 print(df)
 print(type(df))
 
-path_name = "/csv/CARS_DF.csv"
+path_name = "csv/CARS_DF.csv"
 df.to_csv(path_name)
 
 # trying something interesting....
