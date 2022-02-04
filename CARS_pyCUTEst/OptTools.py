@@ -119,6 +119,8 @@ def CentDiff(f, x, h, u, fval, proj = None):
     while not h_valid: # if h too small, increase it
         xp = x + h*u # proj(x + h*u)
         xm = x - h*u # proj(x - h*u)
+        ######### debug mode ########
+        print('shape of xp:', np.shape(xp))
         fp = f(xp)
         fm = f(xm)
         d = (fp-fm)/2./h
