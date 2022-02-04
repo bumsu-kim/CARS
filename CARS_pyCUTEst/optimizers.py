@@ -214,6 +214,9 @@ class CARS(OptForAttack):
         
         super().__init__(param, y0, f)
         self.Otype = 'CARS'
+
+        ######### debug mode ########
+        print('shape of x:', np.shape(self.x))
         
         
     def sety0(self, y):
@@ -249,6 +252,8 @@ class CARS(OptForAttack):
 
             # normalize
             u /= np.linalg.norm(u)
+            ######### debug mode ########
+            print('shape of u:', np.shape(u))
         fmin, xmin = self.CARS_step(u, r)
         self.x = xmin
         self.fval = fmin
