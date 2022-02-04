@@ -26,9 +26,6 @@ class OptForAttack(BaseOptimizer):
         self.n = param['dim'] # problem dimension, 28*28 for MNIST imgs
 
         
-        self.sety0(y0)
-        
-        self.setf(f)
         
         self.stationarity_threshold = param['threshold_first_order_opt']
 
@@ -62,7 +59,10 @@ class OptForAttack(BaseOptimizer):
             self.rtype = 'Coord'
         else: # raise exception
             raise Exception(f"dist_dir ({self.dist_dir}) must be one of 'square', 'unif', 'normal', or 'coord'")
-
+        
+        self.sety0(y0)
+        
+        self.setf(f)
 
     ''' 
     Setters
