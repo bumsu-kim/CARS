@@ -254,6 +254,7 @@ class CARS(OptForAttack):
             u /= np.linalg.norm(u)
             ######### debug mode ########
             print('shape of u:', np.shape(u))
+        u.reshape(np.shpae(self.x))
         fmin, xmin = self.CARS_step(u, r)
         self.x = xmin
         self.fval = fmin
