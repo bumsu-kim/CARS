@@ -78,6 +78,8 @@ class OptForAttack(BaseOptimizer):
         self.fmin = self.fval
         self.f_norecording = lambda x: self.eval(f, x, record_min = False)
         self.grad = lambda x: f(x, gradient=True)[1] # does not count as a func eval, nor record the min
+        self.fvalseq = np.zeros(self.function_budget+1)
+        self.fvalseq[0] = self.fval
 
     '''
     function evaluation
@@ -234,9 +236,9 @@ class CARS(OptForAttack):
         self.stopiter()
         
         if self.status != None:
-            return self.x, self.function_evals, True # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], True # 3rd val = termination or not
         else:
-            return None, self.function_evals, False # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], False # 3rd val = termination or not
         #else:
         #    return self.function_evals, None, None   
 

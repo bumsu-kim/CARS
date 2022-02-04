@@ -463,7 +463,7 @@ list_of_problems_testing = sorted_problems[:10]
 probs_under_100 = []
 
 #for p in sorted_problems:
-for p in sorted_problems[:30]:
+for p in sorted_problems[:30]: 
     prob = pycutest.import_problem(p)
     x0 = prob.x0
     print('dimension of input vector of FUNCTION ' + str(p) + ': ' + str(len(x0)))
