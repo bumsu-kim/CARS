@@ -238,9 +238,9 @@ class CARS(OptForAttack):
         self.stopiter()
         
         if self.status != None:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.status, True # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad, self.status, True # 3rd val = termination or not
         else:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.status, False # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad, self.status, False # 3rd val = termination or not
         #else:
         #    return self.function_evals, None, None   
 
