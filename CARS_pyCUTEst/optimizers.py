@@ -29,7 +29,7 @@ class OptForAttack(BaseOptimizer):
         
         self.stationarity_threshold = param['threshold_first_order_opt']
 
-        self.function_budget = param['budget']
+        self.function_budget = int(param['budget'])
         self.function_target = param['target_fval']
         self.r = param['r'] # initial sampling radius
 
@@ -78,7 +78,7 @@ class OptForAttack(BaseOptimizer):
         self.fmin = self.fval
         self.f_norecording = lambda x: self.eval(f, x, record_min = False)
         self.grad = lambda x: f(x, gradient=True)[1] # does not count as a func eval, nor record the min
-        self.fvalseq = np.zeros(int(self.function_budget)+1)
+        self.fvalseq = np.zeros(self.function_budget+1)
         self.fvalseq[0] = self.fval
 
     '''
