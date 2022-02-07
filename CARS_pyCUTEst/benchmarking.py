@@ -239,7 +239,7 @@ def run_CARS_pycutest(problem, x0, function_budget):
     #oracle_stp = Oracle_pycutest(p.obj)  # comparison oracle.
     
     # Instantiate the CARS optimizer object
-    r0 = 0.01 # initial sampling radius
+    r0 = 0.001 # initial sampling radius
     param = {
         'dim': n, # problem dim
         'r': r0, # sampling radius
@@ -527,7 +527,7 @@ for problem in probs_under_100:
         x0_invoke_ = p_invoke_.x0
         print('problem name: ', p_invoke_.name)
         print('dimension of problem: ', len(x0_invoke_))
-        function_budget_ = 1000*len(x0_invoke_)
+        function_budget_ = 1200*len(x0_invoke_)
         # STP.
         print('invoking CARS in a loop....')
         minval, evals, status = run_CARS_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
