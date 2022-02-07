@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 import optimizers
 
 import argparse
+from os.path import exists
 
 # from Algorithms.stp_optimizer import STPOptimizer
 # from Algorithms.gld_optimizer import GLDOptimizer
@@ -77,8 +78,8 @@ def run_CARS_pycutest(problem, param):
     direction_vector_type = 'UNIF'  # uniform from sphere.
     # direction_vector_type = 3  # rademacher.
     a_k = 0.001  # step-size.
-    x0_stp = copy.copy(x0)
-    n = len(x0_stp)  # problem dimension.
+    x0 = copy.copy(param['x0'])
+    n = len(x0)  # problem dimension.
     '''
     p.obj(x, Gradient=False) -> method which evaluates the function at x.
     '''
@@ -133,21 +134,31 @@ for problem in sorted(probs):
 # input parameters.
 sorted_problems = sorted(probs)
 
-probs_under_100 = []
 
-for p in sorted_problems:
-    prob = pycutest.import_problem(p)
-    x0 = prob.x0
-    print('dimension of input vector of FUNCTION ' + str(p) + ': ' + str(len(x0)))
-    # only want <= 100.
-    if len(x0) <= 100:
-        probs_under_100.append(p)
 
+
+if  exists('list_of_probs_under_100'):
+    with open('list_of_probs_under_100', 'r') as f:
+        probs_under_100 = [line.rstrip() for line in f]
+else:
+    with open('list_of_probs_under_100','w') as f:
+        probs_under_100 = []
+        for p in sorted_problems:
+            prob = pycutest.import_problem(p)
+            x0 = prob.x0
+            print('dimension of input vector of FUNCTION ' + str(p) + ': ' + str(len(x0)))
+            # only want <= 100.
+            if len(x0) <= 100:
+                probs_under_100.append(p)
+                f.write(p + '\n')
+f.close()
 
 print('\n')
 print('number of problems with dimension = 100 or less: ', len(probs_under_100))
 # should be 21.
 # now, I want to iterate through PROBS_UNDER_100 list to create the graph.
+
+
 
 num_experiments = 3
 CARS_err_list = [[] for _ in range(num_experiments)]
