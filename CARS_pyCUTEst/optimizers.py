@@ -89,6 +89,7 @@ class OptForAttack(BaseOptimizer):
         '''
         self.curr_x = x
         res = f(self.curr_x)
+        self.curr_grad_norm = np.linalg.norm(self.f(x, gradient=True)[1])
 
         # record the minimum f
         if record_min:
@@ -110,7 +111,7 @@ class OptForAttack(BaseOptimizer):
     'S' -- Stationary (reached First Order Optimality)
     '''
     def stopiter(self):
-        self.curr_grad = np.linalg.norm(self.grad(self.x))
+        #self.curr_grad_norm = np.linalg.norm(self.grad(self.x))
         # max budget reached
         if self.reachedFunctionBudget(self.function_budget, self.function_evals):
             self.status = 'B'
@@ -120,7 +121,7 @@ class OptForAttack(BaseOptimizer):
             if self.reachedFunctionTarget(self.function_target, self.fval):
                 self.status = 'T'
                 
-        if self.reachedFirstOrderOptimality(self.curr_grad, self.stationarity_threshold):
+        if self.reachedFirstOrderOptimality(self.curr_grad_norm, self.stationarity_threshold):
             self.status = 'S'
             
 
@@ -238,9 +239,9 @@ class CARS(OptForAttack):
         self.stopiter()
         
         if self.status != None:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad, self.status, True # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad_norm, self.status, True # 3rd val = termination or not
         else:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad, self.status, False # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad_norm, self.status, False # 3rd val = termination or not
         #else:
         #    return self.function_evals, None, None   
 
@@ -314,9 +315,9 @@ class SMTP(OptForAttack):
         self.stopiter()
         
         if self.status != None:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad, self.status, True # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad_norm, self.status, True # 3rd val = termination or not
         else:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad, self.status, False # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad_norm, self.status, False # 3rd val = termination or not
         #else:
         #    return self.function_evals, None, None   
 
