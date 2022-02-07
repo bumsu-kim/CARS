@@ -35,9 +35,9 @@ parser.add_argument("-p", "--params", type=str, default="params1",
                         help = "Parameters file name")
 args = vars(parser.parse_args())
 print(args)                        
-paramsfile = 'csv/' + args['params']
+paramsfile = args['params']
 param = dict()
-with open(paramsfile, 'r') as f:
+with open('csv/' + paramsfile, 'r') as f:
     for line in f:
         key, val = line.split()
         if is_number(val):
@@ -55,8 +55,8 @@ PYCUTEST_CACHE=.;CUTEST=/usr/local/opt/cutest/libexec;MYARCH=mac64.osx.gfo;SIFDE
 # Find unconstrained, variable-dimension problems.
 probs = pycutest.find_problems(constraints='U', userN=True)
 # print(sorted(probs)).
-print('number of problems: ', len(probs))
-print(sorted(probs))
+#print('number of problems: ', len(probs))
+#print(sorted(probs))
 
 # Properties of problem ROSENBR.
 print('\n')
