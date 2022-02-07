@@ -16,7 +16,32 @@ import argparse
 # from Algorithms.scobo_optimizer import SCOBOoptimizer
 # from Algorithms.CMA_2 import CMA
 
+'''
+Read the parameters from a file
+'''
 
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
+parser = argparse.ArgumentParser(formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-p", "--params", type=str, default="params1",
+                        help = "Parameters file name")
+args = vars(parser.parse_args())
+print(args)                        
+paramsfile = args['params']
+param = dict()
+with open(paramsfile, 'r') as f:
+    for line in f:
+        key, val = line.split()
+        if is_number(val):
+            val = float(val)
+        param[key] = val
 """
 BENCHMARKING.
 """
@@ -130,29 +155,6 @@ CARS_gnorm_list = [[] for _ in range(num_experiments)]
 CARS_evals_list = [[] for _ in range(num_experiments)]
 CARS_status_list = [[] for _ in range(num_experiments)]
 
-
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-'''
-Read the parameters from a file
-'''
-parser = argparse.ArgumentParser(formatter_class = argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-p", "--params", type=str, default="params1",
-                        help = "Parameters file name")
-args = vars(parser.parse_args())
-print(args)                        
-paramsfile = args['params']
-param = dict()
-with open(paramsfile, 'r') as f:
-    for line in f:
-        key, val = line.split()
-        if is_number(val):
-            val = float(val)
-        param[key] = val
 
 
 
