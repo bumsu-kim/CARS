@@ -74,7 +74,7 @@ class OptForAttack(BaseOptimizer):
 
     def setf(self, f):
         self.f = lambda x: self.eval(f, x, record_min = True)
-        self.fval = f(self.x)
+        self.fval = self.f(self.x)
         self.fmin = self.fval
         self.f_norecording = lambda x: self.eval(f, x, record_min = False)
         self.grad = lambda x: f(x, gradient=True)[1] # does not count as a func eval, nor record the min
@@ -88,8 +88,8 @@ class OptForAttack(BaseOptimizer):
         ''' function evaluation at x
         '''
         self.curr_x = x
-        res = f(self.curr_x)
-        self.curr_grad_norm = np.linalg.norm(self.f(x, gradient=True)[1])
+        res, self.curr_grad = f(self.curr_x, gradient=True)
+        self.curr_grad_norm = np.linalg.norm(self.curr_grad)
 
         # record the minimum f
         if record_min:
