@@ -124,12 +124,12 @@ def run_CARS_pycutest(problem, param):
 '''
 I'm going to choose one at random and see how well our 4/5 algorithms optimize it.
 '''
-for problem in sorted(probs):
-    print(problem + ': ' + str(pycutest.problem_properties(problem)))
-    '''
-    p = pycutest.import_problem(problem)
-    print('x0 dimension: ', len(p.x0))
-    '''
+# for problem in sorted(probs):
+#     print(problem + ': ' + str(pycutest.problem_properties(problem)))
+#     '''
+#     p = pycutest.import_problem(problem)
+#     print('x0 dimension: ', len(p.x0))
+#     '''
 
 # input parameters.
 sorted_problems = sorted(probs)
