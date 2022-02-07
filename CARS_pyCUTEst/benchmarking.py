@@ -261,9 +261,9 @@ print("Evals:")
 print(df_evals)
 
 
-path_name_err = "csv/CARS_DF_err.csv"
-path_name_gnorm = "csv/CARS_DF_gnorm.csv"
-path_name_evals = "csv/CARS_DF_evals.csv"
+path_name_err = "csv/CARS_DF_err_" + paramsfile + ".csv"
+path_name_gnorm = "csv/CARS_DF_gnorm_" + paramsfile + ".csv"
+path_name_evals = "csv/CARS_DF_evals_" + paramsfile + ".csv"
 df_err.to_csv(path_name_err)
 df_evals.to_csv(path_name_evals)
 df_gnorm.to_csv(path_name_gnorm)
