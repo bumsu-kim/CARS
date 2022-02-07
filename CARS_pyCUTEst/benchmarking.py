@@ -254,19 +254,22 @@ def run_CARS_pycutest(problem, x0, function_budget):
     termination = False
     prev_evals = 0
     while termination is False:
-        solution, func_value, evals, status, termination = cars_orig.step()
+        solution, func_value, evals, grad_norm, status, termination = cars_orig.step()
         #print('current value: ', func_value[-1])
     print('solution: ', solution if len(solution)<=5 else solution[:5])
-    # plot.
-    plt.plot(func_value)
-    plt.title('CARS - linear.')
-    #plt.show()
-    plt.close()
-    plt.semilogy(func_value)
-    plt.title('CARS - log.')
-    #plt.show()
-    plt.close()
+    # # plot.
+    # plt.plot(func_value)
+    # plt.title('CARS - linear.')
+    # #plt.show()
+    # plt.close()
+    # plt.semilogy(func_value)
+    # plt.title('CARS - log.')
+    # #plt.show()
+    # plt.close()
+    print('Status: ', status)
     print('function evaluation at solution: ', func_value[-1])
+    print('Grad norm at solution: ', grad_norm)
+    print('Number of function evaluations: ', evals)
     return func_value[-1], evals, status
 
 

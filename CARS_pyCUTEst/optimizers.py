@@ -110,6 +110,7 @@ class OptForAttack(BaseOptimizer):
     'S' -- Stationary (reached First Order Optimality)
     '''
     def stopiter(self):
+        self.curr_grad = np.linalg.norm(self.grad(self.x))
         # max budget reached
         if self.reachedFunctionBudget(self.function_budget, self.function_evals):
             self.status = 'B'
@@ -118,8 +119,8 @@ class OptForAttack(BaseOptimizer):
         if self.function_target != None:
             if self.reachedFunctionTarget(self.function_target, self.fval):
                 self.status = 'T'
-
-        if self.reachedFirstOrderOptimality(np.linalg.norm(self.grad(self.x)), self.stationarity_threshold):
+                
+        if self.reachedFirstOrderOptimality(self.curr_grad, self.stationarity_threshold):
             self.status = 'S'
             
 
