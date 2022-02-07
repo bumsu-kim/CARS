@@ -19,7 +19,6 @@ import optimizers
 BENCHMARKING.
 """
 
-# email this to Daniel:
 '''
 Add this to ENVIRONMENT VARIABLES (edit configurations):
 PYCUTEST_CACHE=.;CUTEST=/usr/local/opt/cutest/libexec;MYARCH=mac64.osx.gfo;SIFDECODE=/usr/local/opt/sifdecode/libexec;MASTSIF=/usr/local/opt/mastsif/share/mastsif;ARCHDEFS=/usr/local/opt/archdefs/libexec
@@ -255,7 +254,7 @@ def run_CARS_pycutest(problem, x0, function_budget):
     termination = False
     prev_evals = 0
     while termination is False:
-        solution, func_value, termination = cars_orig.step()
+        solution, func_value, evals, status, termination = cars_orig.step()
         #print('current value: ', func_value[-1])
     print('solution: ', solution if len(solution)<=5 else solution[:5])
     # plot.
@@ -268,7 +267,7 @@ def run_CARS_pycutest(problem, x0, function_budget):
     #plt.show()
     plt.close()
     print('function evaluation at solution: ', func_value[-1])
-    return func_value[-1]
+    return func_value[-1], evals, status
 
 
 # def run_GLD_pycutest(problem, x0, function_budget):
@@ -477,12 +476,16 @@ print('number of problems with dimension = 100 or less: ', len(probs_under_100))
 # should be 21.
 # now, I want to iterate through PROBS_UNDER_100 list to create the graph.
 
-CARS_err_1 = []
-CARS_err_2 = []
-CARS_err_3 = []
-CARS_err_4 = []
-CARS_err_5 = []
-CARS_err_list = [CARS_err_1, CARS_err_2, CARS_err_3, CARS_err_4, CARS_err_5]
+num_experiments = 5
+# CARS_err_1 = []
+# CARS_err_2 = []
+# CARS_err_3 = []
+# CARS_err_4 = []
+# CARS_err_5 = []
+# CARS_err_list = [CARS_err_1, CARS_err_2, CARS_err_3, CARS_err_4, CARS_err_5]
+CARS_err_list = [[] for _ in range(num_experiments)]
+CARS_evals_list = [[] for _ in range(num_experiments)]
+CARS_status_list = [[] for _ in range(num_experiments)]
 # gld_err_1 = []
 # gld_err_2 = []
 # gld_err_3 = []
@@ -510,7 +513,7 @@ CARS_err_list = [CARS_err_1, CARS_err_2, CARS_err_3, CARS_err_4, CARS_err_5]
 
 # for problem in list_of_problems_testing:
 for problem in probs_under_100:
-    for i in range(5):
+    for i in range(num_experiments):
         p_invoke_ = pycutest.import_problem(problem)
         '''
         x0_p_ = p_invoke_.x0
@@ -521,11 +524,13 @@ for problem in probs_under_100:
         x0_invoke_ = p_invoke_.x0
         print('problem name: ', p_invoke_.name)
         print('dimension of problem: ', len(x0_invoke_))
-        function_budget_ = 10000*len(x0_invoke_)
+        function_budget_ = 1000*len(x0_invoke_)
         # STP.
         print('invoking CARS in a loop....')
-        min1 = run_CARS_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        CARS_err_list[i].append(min1)
+        minval, evals, status = run_CARS_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+        CARS_err_list[i].append(minval)
+        CARS_evals_list[i].append(evals)
+        CARS_status_list[i].append(status)
         print('\n')
         # # GLD.
         # print('invoking GLD in a loop....')
@@ -557,6 +562,7 @@ arrays = [np.array(x) for x in multiple_lists]
 # average CARS.
 arrays_CARS = [np.array(x) for x in CARS_err_list]
 CARS_average_error = [np.mean(k) for k in zip(*arrays_CARS)]
+CARS_average_evals = [np.mean(k) for k in zip(*[np.array(x) for x in CARS_evals_list])]
 # # average GLD.
 # arrays_gld = [np.array(x) for x in GLD_err_list]
 # GLD_average_error = [np.mean(k) for k in zip(*arrays_gld)]
@@ -584,21 +590,30 @@ print('CARS: ', CARS_average_error)
 
 # list_of_errors = [STP_err_list, GLD_err_list, SignOPT_err_list, SCOBO_err_list]
 list_of_errors = [CARS_average_error,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
+list_of_evals = [CARS_average_evals,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
 list_of_algorithms = ['CARS',] # 'GLD', 'SignOPT', 'SCOBO', 'CMA']
 
 # I need to make a dataframe with rows = Algorithms and columns = problems.
 # columns = [element for element in list_of_problems_testing]
 columns = [element for element in probs_under_100]
-df = pd.DataFrame(columns=columns)
-df_length = len(df)
+df_err = pd.DataFrame(columns=columns)
+df_evals = pd.DataFrame(columns=columns)
+df_length = len(df_err)
 for i in range(len(list_of_errors)):
-    df.loc[list_of_algorithms[i]] = list_of_errors[i]
+    df_err.loc[list_of_algorithms[i]] = list_of_errors[i]
+    df_evals.loc[list_of_algorithms[i]] = list_of_evals[i]
 
-print(df)
-print(type(df))
+print("Errors:")
+print(df_err)
+print(type(df_err))
+print("Evals:")
+print(df_evals)
 
-path_name = "csv/CARS_DF.csv"
-df.to_csv(path_name)
+
+path_name_err = "csv/CARS_DF_err.csv"
+path_name_evals = "csv/CARS_DF_evals.csv"
+df_err.to_csv(path_name_err)
+df_evals.to_csv(path_name_evals)
 
 # trying something interesting....
 
