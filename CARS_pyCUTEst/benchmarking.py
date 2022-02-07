@@ -34,7 +34,7 @@ parser.add_argument("-p", "--params", type=str, default="params1",
                         help = "Parameters file name")
 args = vars(parser.parse_args())
 print(args)                        
-paramsfile = args['params']
+paramsfile = 'csv/' + args['params']
 param = dict()
 with open(paramsfile, 'r') as f:
     for line in f:
