@@ -187,7 +187,7 @@ class CARS(OptForAttack):
         
         super().__init__(param, y0, f)
         self.Otype = 'CARS'
-        self.M = 1
+        self.M = param['M']
         ######### debug mode ########
         #print('shape of x:', np.shape(self.x))
         
@@ -250,7 +250,79 @@ class CARS(OptForAttack):
 
 class SMTP(OptForAttack):
     '''
-    Curvature Aware Random Search
+    Stochastic Three Point method (with Momentum)
+    '''
+    def __init__(self, param, y0, f):
+        '''
+            Initialize parameters
+        '''
+        
+        super().__init__(param, y0, f)
+        if param['momentum']:
+            self.Otype = 'SMTP'
+        else:
+            self.Otype = 'STP'
+
+        self.M = 1
+        ######### debug mode ########
+        #print('shape of x:', np.shape(self.x))
+        
+        
+    def sety0(self, y):
+        super().sety0(y)
+
+    def step(self, u = None):
+        ''' 
+            Do CARS Step.
+            The direction vector u can be given as a param.
+            If not given, it randomly generate a direction using the distribution parameter
+                (-dd in script, self.rtype)
+        '''
+        r = self.r * np.sqrt(1/(self.t+1)) # decaying sampling radius (1/sqrt(k))
+        if self.t==0:
+            self.stopiter()
+            if self.status != None:
+                return self.function_evals, self.x, self.status
+        # Take step of optimizer
+        if u == None:
+            # generate a random direction
+            if self.rtype == 'Box':
+                # u = ot.sampling( n_samp = 1, dim = self.n, randtype = self.rtype,
+                #             distparam = {'coord': ot.idx2coord(np.random.randint(0, np.size(self.x))),
+                #                 'windowsz': int(np.round(np.sqrt(np.prod(self.Atk.viewsize[2:4])*self.p))),
+                #                 'ImSize': self.Atk.viewsize[2:4]
+                #                 }
+                #             )
+                pass
+            elif self.rtype == 'Uniform':
+                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.rtype)
+            elif self.rtype == 'Coord':
+                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.dist_dir)
+
+            # normalize
+            u /= np.linalg.norm(u)
+            
+            
+        u = u.reshape(np.shape(self.x))
+        ######### debug mode ########
+        #print('shape of u:', np.shape(u))
+        fmin, xmin = self.CARS_step(u, r)
+        self.x = xmin
+        self.fval = fmin
+
+        self.t += 1
+        self.stopiter()
+        
+        if self.status != None:
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad, self.status, True # 3rd val = termination or not
+        else:
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad, self.status, False # 3rd val = termination or not
+        #else:
+        #    return self.function_evals, None, None   
+
+class SMTP(OptForAttack):
+    '''
+    SMTP
     '''
     def __init__(self, param, y0, f):
         '''
