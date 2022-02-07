@@ -247,7 +247,7 @@ def run_CARS_pycutest(problem, x0, function_budget):
         'nq': 0, # not CARS-NQ
         'dist_dir': 'UNIF',
         'target_fval': None, # no min vals known
-        'threshold_first_order_opt': 1e-10 # use first order optimality condition instead
+        'threshold_first_order_opt': 1e-5 # use first order optimality condition instead
     }
     cars_orig = optimizers.CARS(param, y0 = x0, f = p.obj)
     # step.
