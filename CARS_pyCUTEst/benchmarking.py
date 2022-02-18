@@ -10,6 +10,7 @@ import optimizers
 
 import argparse
 from os.path import exists
+from os import mkdir
 
 # from Algorithms.stp_optimizer import STPOptimizer
 # from Algorithms.gld_optimizer import GLDOptimizer
@@ -43,6 +44,8 @@ with open('csv/' + paramsfile, 'r') as f:
         if is_number(val):
             val = float(val)
         param[key] = val
+if not exists('npy/'+paramsfile):
+    mkdir('npy/'+paramsfile)
 """
 BENCHMARKING.
 """
@@ -195,7 +198,7 @@ for problem in probs_under_100:
         evals_list[i].append(evals)
         status_list[i].append(status)
         print('\n')
-        with open(f"npy/{param['Otype']}_err_gnorm_"+paramsfile+f'_exp_{i}_{problem}.npy', 'wb') as f:
+        with open(f"npy/{paramsfile}/{param['Otype']}_{problem}_{i}.npy", 'wb') as f:
             np.save(f, np.vstack((fvals, gnorms)))
 
 
