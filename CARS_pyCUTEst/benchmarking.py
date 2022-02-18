@@ -11,6 +11,7 @@ import optimizers
 import argparse
 from os.path import exists
 from os import mkdir
+import shutil
 
 # from Algorithms.stp_optimizer import STPOptimizer
 # from Algorithms.gld_optimizer import GLDOptimizer
@@ -46,6 +47,7 @@ with open('csv/' + paramsfile, 'r') as f:
         param[key] = val
 if not exists('npy/'+paramsfile):
     mkdir('npy/'+paramsfile)
+shutil.copyfile('csv/'+paramsfile, f"npy/{paramsfile}/{paramsfile}")
 """
 BENCHMARKING.
 """
