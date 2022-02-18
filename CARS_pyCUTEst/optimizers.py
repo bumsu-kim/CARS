@@ -81,7 +81,7 @@ class OptForAttack(BaseOptimizer):
         self.f_norecording = lambda x: self.eval(f, x, record_min = False)
         self.grad = lambda x: f(x, gradient=True)[1] # does not count as a func eval, nor record the min
         self.fvalseq[0] = self.fval
-        self.gnormseq[0] = np.linalg.norm(f(self.x, gradient = True))
+        self.gnormseq[0] = np.linalg.norm(self.grad(self.x))
     '''
     function evaluation
     '''
