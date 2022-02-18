@@ -242,11 +242,11 @@ for i in range(len(list_of_errors)):
     df_gnorm.loc[list_of_algorithms[i]] = list_of_gnorm[i]
     df_evals.loc[list_of_algorithms[i]] = list_of_evals[i]
 
-print("Errors:")
-print(df_err)
-print(type(df_err))
-print("Evals:")
-print(df_evals)
+#print("Errors:")
+#print(df_err)
+#print(type(df_err))
+#print("Evals:")
+#print(df_evals)
 
 
 path_name_err = f"csv/{param['Otype']}_DF_err_" + paramsfile + ".csv"
