@@ -69,7 +69,7 @@ print('\n')
 
 # ----------------------------------------------------------------------------------------------------------------------
 # here, I'll have all of the FUNCTIONS.
-def run_CARS_pycutest(problem, param):
+def run_pycutest(problem, param):
     # CARS.
     print('RUNNING ALGORITHM CARS....')
     p = problem
@@ -89,14 +89,18 @@ def run_CARS_pycutest(problem, param):
     r0 = 0.1 # initial sampling radius
     param['dim'] = n
     param['target_fval'] = None
-    cars_orig = optimizers.CARS(param, y0 = x0, f = p.obj)
+    Otype = param["Otype"]
+    if Otype == "CARS":
+        opt = optimizers.CARS(param, y0 = x0, f = p.obj)
+    elif Otype == "Other":
+        pass # implement this later
     # step.
     termination = False
-    prev_evals = 0
+    
     while termination is False:
-        solution, func_value, evals, grad_norm_seq, status, termination = cars_orig.step()
-        grad_norm = grad_norm_seq[-1]
+        solution, func_value, evals, grad_norm_seq, status, termination = opt.step()
         #print('current value: ', func_value[-1])
+    grad_norm = grad_norm_seq[-1]
     print('solution: ', solution if len(solution)<=5 else solution[:5])
     print('Status: ', status)
     print('function evaluation at solution: ', func_value[-1])
@@ -156,18 +160,17 @@ f.close()
 
 print('\n')
 print('number of problems with dimension = 100 or less: ', len(probs_under_100))
+
 # should be 21.
 # now, I want to iterate through PROBS_UNDER_100 list to create the graph.
 
 
 
 num_experiments = 3
-CARS_err_list = [[] for _ in range(num_experiments)]
-CARS_gnorm_list = [[] for _ in range(num_experiments)]
-CARS_evals_list = [[] for _ in range(num_experiments)]
-CARS_status_list = [[] for _ in range(num_experiments)]
-
-
+err_list = [[] for _ in range(num_experiments)]
+gnorm_list = [[] for _ in range(num_experiments)]
+evals_list = [[] for _ in range(num_experiments)]
+status_list = [[] for _ in range(num_experiments)]
 
 
 # for problem in list_of_problems_testing:
@@ -183,15 +186,14 @@ for problem in probs_under_100:
         x0_invoke_ = p_invoke_.x0
         print('problem name: ', p_invoke_.name)
         print('dimension of problem: ', len(x0_invoke_))
-        # STP.
-        print('invoking CARS in a loop....')
+        print(f'invoking {param["Otype"]} in a loop....')
         param['x0'] =  copy.copy(x0_invoke_)
         param['budget'] = param['budget_param']*len(x0_invoke_)
-        fvals, gnorms, evals, status = run_CARS_pycutest(p_invoke_, param)
-        CARS_err_list[i].append(fvals)
-        CARS_gnorm_list[i].append(gnorms)
-        CARS_evals_list[i].append(evals)
-        CARS_status_list[i].append(status)
+        fvals, gnorms, evals, status = run_pycutest(p_invoke_, param)
+        err_list[i].append(fvals)
+        gnorm_list[i].append(gnorms)
+        evals_list[i].append(evals)
+        status_list[i].append(status)
         print('\n')
         with open(f"npy/{param['Otype']}_err_gnorm_"+paramsfile+f'_exp_{i}_{p}.npy', 'w') as f:
             np.save(f, np.vstack((fvals, gnorms)))
@@ -204,22 +206,10 @@ arrays = [np.array(x) for x in multiple_lists]
 [np.mean(k) for k in zip(*arrays)]
 """
 # average CARS.
-arrays_CARS = [np.array(x[-1]) for x in CARS_err_list]
-CARS_average_error = [np.mean(k) for k in zip(*arrays_CARS)]
-CARS_average_gnorm = [np.mean(k) for k in zip(*[np.array(x[-1]) for x in CARS_gnorm_list])]
-CARS_average_evals = [np.mean(k) for k in zip(*[np.array(x) for x in CARS_evals_list])]
-# # average GLD.
-# arrays_gld = [np.array(x) for x in GLD_err_list]
-# GLD_average_error = [np.mean(k) for k in zip(*arrays_gld)]
-# # average SignOPT.
-# arrays_signopt = [np.array(x) for x in SignOPT_err_list]
-# SignOPT_average_error = [np.mean(k) for k in zip(*arrays_signopt)]
-# # average SCOBO.
-# arrays_scobo = [np.array(x) for x in SCOBO_err_list]
-# SCOBO_average_error = [np.mean(k) for k in zip(*arrays_scobo)]
-# # average CMA.
-# arrays_cma = [np.array(x) for x in CMA_err_list]
-# CMA_average_error = [np.mean(k) for k in zip(*arrays_cma)]
+arrays_CARS = [np.array(x[-1]) for x in err_list]
+average_error = [np.mean(k) for k in zip(*arrays_CARS)]
+average_gnorm = [np.mean(k) for k in zip(*[np.array(x[-1]) for x in gnorm_list])]
+average_evals = [np.mean(k) for k in zip(*[np.array(x) for x in evals_list])]
 
 '''
 print('STP: ', STP_err_list)
@@ -227,16 +217,12 @@ print('GLD: ', GLD_err_list)
 print('SignOPT: ', SignOPT_err_list)
 print('SCOBO: ', SCOBO_err_list)
 '''
-print('CARS: ', CARS_average_error)
-# print('GLD: ', GLD_average_error)
-# print('SignOPT: ', SignOPT_average_error)
-# print('SCOBO: ', SCOBO_average_error)
-# print('CMA: ', CMA_average_error)
+print(f'{param["Otype"]}: ', average_error)
 
 # list_of_errors = [STP_err_list, GLD_err_list, SignOPT_err_list, SCOBO_err_list]
-list_of_errors = [CARS_average_error,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
-list_of_gnorm = [CARS_average_gnorm,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
-list_of_evals = [CARS_average_evals,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
+list_of_errors = [average_error,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
+list_of_gnorm = [average_gnorm,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
+list_of_evals = [average_evals,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
 list_of_algorithms = ['CARS',] # 'GLD', 'SignOPT', 'SCOBO', 'CMA']
 
 # I need to make a dataframe with rows = Algorithms and columns = problems.
@@ -266,32 +252,6 @@ df_evals.to_csv(path_name_evals)
 df_gnorm.to_csv(path_name_gnorm)
 
 
-# trying something interesting....
-
-# x0_p = p_invoke.x0
-# dim_x0 = len(x0_p)
-# x0_invoke = np.random.randn(dim_x0)
-
-# #x0_invoke = p_invoke.x0  # initial value.
-# print('dimension of x0: ', len(x0_invoke))
-# # x0_invoke = np.random.randn(2)
-# function_budget = 10  # max number of iterations.
-# # STP invocation.
-# print('\n')
-# print('invoke STP as a function.')
-# #run_STP_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
-# # GLD invocation.
-# print('\n')
-# print('invoke GLD as a function.')
-# #run_GLD_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
-# # SignOPT invocation.
-# print('\n')
-# print('invoke SignOPT as a function.')
-# #run_signOPT_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
-# # SCOBO invocation.
-# print('\n')
-# print('invoke SCOBO as a function.')
-# #run_SCOBO_pycutest(p_invoke, copy.copy(x0_invoke), function_budget)
 '''
 ***************************
 '''

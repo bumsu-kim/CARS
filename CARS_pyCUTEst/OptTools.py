@@ -119,7 +119,7 @@ def CentDiff(f, x, h, u, fval, eps, proj = None):
     fm = f(xm)
     d = (fp-fm)/2./h
     d2 = (fp - 2*fval + fm)/h**2
-    d2 = d2 + eps    
+    d2 = d2 + np.sign(d2)*eps
     return d, d2
 
 def NumQuad(f, x, h, u, fval, ATK, GH_pts = 5):
