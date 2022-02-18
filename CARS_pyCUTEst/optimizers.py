@@ -80,7 +80,8 @@ class OptForAttack(BaseOptimizer):
         self.f_norecording = lambda x: self.eval(f, x, record_min = False)
         self.grad = lambda x: f(x, gradient=True)[1] # does not count as a func eval, nor record the min
         self.fvalseq[0] = self.fval
-
+        self.gnormseq = np.zeros(self.function_budget+1)
+        self.gnormseq[0] = np.linalg.norm(f(self.x, gradient = True))
     '''
     function evaluation
     '''
@@ -98,6 +99,7 @@ class OptForAttack(BaseOptimizer):
                 self.xmin = x
                 self.fmin = res
             self.fvalseq[self.t+1] = res # record as a f-value
+            self.gnormseq[self.t+1] = self.curr_grad_norm # record the grad norm
 
         return res
 
@@ -212,12 +214,6 @@ class CARS(OptForAttack):
         if u == None:
             # generate a random direction
             if self.rtype == 'Box':
-                # u = ot.sampling( n_samp = 1, dim = self.n, randtype = self.rtype,
-                #             distparam = {'coord': ot.idx2coord(np.random.randint(0, np.size(self.x))),
-                #                 'windowsz': int(np.round(np.sqrt(np.prod(self.Atk.viewsize[2:4])*self.p))),
-                #                 'ImSize': self.Atk.viewsize[2:4]
-                #                 }
-                #             )
                 pass
             elif self.rtype == 'Uniform':
                 u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.rtype)
@@ -239,9 +235,9 @@ class CARS(OptForAttack):
         self.stopiter()
         
         if self.status != None:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad_norm, self.status, True # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, True # 3rd val = termination or not
         else:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad_norm, self.status, False # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, False # 3rd val = termination or not
         #else:
         #    return self.function_evals, None, None   
 

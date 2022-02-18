@@ -94,14 +94,15 @@ def run_CARS_pycutest(problem, param):
     termination = False
     prev_evals = 0
     while termination is False:
-        solution, func_value, evals, grad_norm, status, termination = cars_orig.step()
+        solution, func_value, evals, grad_norm_seq, status, termination = cars_orig.step()
+        grad_norm = grad_norm_seq[-1]
         #print('current value: ', func_value[-1])
     print('solution: ', solution if len(solution)<=5 else solution[:5])
     print('Status: ', status)
     print('function evaluation at solution: ', func_value[-1])
     print('Grad norm at solution: ', grad_norm)
     print('Number of function evaluations: ', evals)
-    return func_value[-1], grad_norm, evals, status
+    return func_value, grad_norm_seq, evals, status
 
 '''
 ***************************
@@ -186,9 +187,9 @@ for problem in probs_under_100:
         print('invoking CARS in a loop....')
         param['x0'] =  copy.copy(x0_invoke_)
         param['budget'] = param['budget_param']*len(x0_invoke_)
-        minval, gnorm, evals, status = run_CARS_pycutest(p_invoke_, param)
-        CARS_err_list[i].append(minval)
-        CARS_gnorm_list[i].append(gnorm)
+        fvals, gnorms, evals, status = run_CARS_pycutest(p_invoke_, param)
+        CARS_err_list[i].append(fvals)
+        CARS_gnorm_list[i].append(gnorms)
         CARS_evals_list[i].append(evals)
         CARS_status_list[i].append(status)
         print('\n')
@@ -220,9 +221,9 @@ arrays = [np.array(x) for x in multiple_lists]
 [np.mean(k) for k in zip(*arrays)]
 """
 # average CARS.
-arrays_CARS = [np.array(x) for x in CARS_err_list]
+arrays_CARS = [np.array(x[-1]) for x in CARS_err_list]
 CARS_average_error = [np.mean(k) for k in zip(*arrays_CARS)]
-CARS_average_gnorm = [np.mean(k) for k in zip(*[np.array(x) for x in CARS_gnorm_list])]
+CARS_average_gnorm = [np.mean(k) for k in zip(*[np.array(x[-1]) for x in CARS_gnorm_list])]
 CARS_average_evals = [np.mean(k) for k in zip(*[np.array(x) for x in CARS_evals_list])]
 # # average GLD.
 # arrays_gld = [np.array(x) for x in GLD_err_list]
@@ -280,6 +281,13 @@ path_name_evals = "csv/CARS_DF_evals_" + paramsfile + ".csv"
 df_err.to_csv(path_name_err)
 df_evals.to_csv(path_name_evals)
 df_gnorm.to_csv(path_name_gnorm)
+
+for i in range(num_experiments):
+    j = 0
+    for p in probs_under_100:
+        with open('npy/CARS_err_gnorm_'+paramsfile+f'_exp_{i}_{p}.npy', 'w') as f:
+            np.save(f, np.vstack((CARS_err_list[i][j], CARS_gnorm_list[i][j])))
+        j = j+1
 
 # trying something interesting....
 
