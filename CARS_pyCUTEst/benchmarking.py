@@ -195,7 +195,7 @@ for problem in probs_under_100:
         evals_list[i].append(evals)
         status_list[i].append(status)
         print('\n')
-        with open(f"npy/{param['Otype']}_err_gnorm_"+paramsfile+f'_exp_{i}_{p}.npy', 'w') as f:
+        with open(f"npy/{param['Otype']}_err_gnorm_"+paramsfile+f'_exp_{i}_{problem}.npy', 'w') as f:
             np.save(f, np.vstack((fvals, gnorms)))
 
 
