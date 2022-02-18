@@ -35,9 +35,12 @@ def is_number(s):
 parser = argparse.ArgumentParser(formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-p", "--params", type=str, default="params1",
                         help = "Parameters file name")
+parser.add_argument("-n", "--nexp", type=int, default=3,
+                        help = "Number of experiments (runs)")                        
 args = vars(parser.parse_args())
 print(args)                        
 paramsfile = args['params']
+num_experiments = args['nexp']
 param = dict()
 with open('csv/' + paramsfile, 'r') as f:
     for line in f:
@@ -171,7 +174,6 @@ print('number of problems with dimension = 100 or less: ', len(probs_under_100))
 
 
 
-num_experiments = 3
 err_list = [[] for _ in range(num_experiments)]
 gnorm_list = [[] for _ in range(num_experiments)]
 evals_list = [[] for _ in range(num_experiments)]
@@ -224,11 +226,10 @@ print('SCOBO: ', SCOBO_err_list)
 '''
 print(f'{param["Otype"]}: ', average_error)
 
-# list_of_errors = [STP_err_list, GLD_err_list, SignOPT_err_list, SCOBO_err_list]
-list_of_errors = [average_error,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
-list_of_gnorm = [average_gnorm,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
-list_of_evals = [average_evals,]# GLD_average_error, SignOPT_average_error, SCOBO_average_error, CMA_average_error]
-list_of_algorithms = ['CARS',] # 'GLD', 'SignOPT', 'SCOBO', 'CMA']
+list_of_errors = [average_error]
+list_of_gnorm = [average_gnorm]
+list_of_evals = [average_evals]
+list_of_algorithms = ['CARS',]
 
 # I need to make a dataframe with rows = Algorithms and columns = problems.
 # columns = [element for element in list_of_problems_testing]
