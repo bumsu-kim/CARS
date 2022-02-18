@@ -277,7 +277,7 @@ class SMTP(OptForAttack):
             If not given, it randomly generate a direction using the distribution parameter
                 (-dd in script, self.rtype)
         '''
-        r = self.r * np.sqrt(1/(self.t+1)) # decaying sampling radius (1/sqrt(k))
+        r = self.r * (1./(self.t+1)) # decaying sampling radius (1/k)
         if self.t==0:
             self.stopiter()
             if self.status != None:
