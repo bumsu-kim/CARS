@@ -193,26 +193,9 @@ for problem in probs_under_100:
         CARS_evals_list[i].append(evals)
         CARS_status_list[i].append(status)
         print('\n')
-        # # GLD.
-        # print('invoking GLD in a loop....')
-        # min2 = run_GLD_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        # GLD_err_list[i].append(min2)
-        # print('\n')
-        # # SignOPT.
-        # print('invoking SignOPT in a loop....')
-        # min3 = run_signOPT_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        # SignOPT_err_list[i].append(min3)
-        # print('\n')
-        # # SCOBO.
-        # print('invoking SCOBO in a loop....')
-        # min4 = run_SCOBO_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        # SCOBO_err_list[i].append(min4)
-        # print('\n')
-        # # CMA.
-        # print('invoking CMA in a loop....')
-        # min5 = run_CMA_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        # CMA_err_list[i].append(min5)
-        # print('\n')
+        with open(f"npy/{param['Otype']}_err_gnorm_"+paramsfile+f'_exp_{i}_{p}.npy', 'w') as f:
+            np.save(f, np.vstack((fvals, gnorms)))
+
 
 # averaging reference....
 """
@@ -275,19 +258,13 @@ print("Evals:")
 print(df_evals)
 
 
-path_name_err = "csv/CARS_DF_err_" + paramsfile + ".csv"
-path_name_gnorm = "csv/CARS_DF_gnorm_" + paramsfile + ".csv"
-path_name_evals = "csv/CARS_DF_evals_" + paramsfile + ".csv"
+path_name_err = f"csv/{param['Otype']}_DF_err_" + paramsfile + ".csv"
+path_name_gnorm = f"csv/{param['Otype']}_DF_gnorm_" + paramsfile + ".csv"
+path_name_evals = f"csv/{param['Otype']}_DF_evals_" + paramsfile + ".csv"
 df_err.to_csv(path_name_err)
 df_evals.to_csv(path_name_evals)
 df_gnorm.to_csv(path_name_gnorm)
 
-for i in range(num_experiments):
-    j = 0
-    for p in probs_under_100:
-        with open('npy/CARS_err_gnorm_'+paramsfile+f'_exp_{i}_{p}.npy', 'w') as f:
-            np.save(f, np.vstack((CARS_err_list[i][j], CARS_gnorm_list[i][j])))
-        j = j+1
 
 # trying something interesting....
 
