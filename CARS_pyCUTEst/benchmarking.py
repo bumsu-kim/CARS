@@ -204,6 +204,7 @@ for problem in probs_under_100:
         print('\n')
         with open(f"npy/{paramsfile}/{param['Otype']}_{problem}_{i}.npy", 'wb') as f:
             np.save(f, np.vstack((fvals, gnorms)))
+            f.close()
 
 
 # averaging reference....
@@ -224,7 +225,7 @@ print('GLD: ', GLD_err_list)
 print('SignOPT: ', SignOPT_err_list)
 print('SCOBO: ', SCOBO_err_list)
 '''
-print(f'{param["Otype"]}: ', average_error)
+#print(f'{param["Otype"]}: ', average_error)
 
 list_of_errors = [average_error]
 list_of_gnorm = [average_gnorm]
