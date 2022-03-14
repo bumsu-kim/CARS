@@ -102,6 +102,8 @@ def run_pycutest(problem, param):
         opt = optimizers.CARS(param, y0 = x0, f = p.obj)
     elif Otype == "STP" or Otype == "SMTP":
         opt = optimizers.SMTP(param, y0 = x0, f = p.obj)
+    elif Otype == "NS":
+        opt = optimizers.NS(param, y0=x0, f=p.obj)
     # step.
     termination = False
     
