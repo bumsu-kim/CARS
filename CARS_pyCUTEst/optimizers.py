@@ -337,116 +337,116 @@ class SMTP(OptForAttack):
 
 
 
-        r = self.r * (1./(self.t+1)) # decaying sampling radius (1/k)
-        if self.t==0:
-            self.stopiter()
-            if self.status != None:
-                return self.function_evals, self.x, self.status
-        # Take step of optimizer
-        if u == None:
-            # generate a random direction
-            if self.rtype == 'Box':
-                # u = ot.sampling( n_samp = 1, dim = self.n, randtype = self.rtype,
-                #             distparam = {'coord': ot.idx2coord(np.random.randint(0, np.size(self.x))),
-                #                 'windowsz': int(np.round(np.sqrt(np.prod(self.Atk.viewsize[2:4])*self.p))),
-                #                 'ImSize': self.Atk.viewsize[2:4]
-                #                 }
-                #             )
-                pass
-            elif self.rtype == 'Uniform':
-                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.rtype)
-            elif self.rtype == 'Coord':
-                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.dist_dir)
+        # r = self.r * (1./(self.t+1)) # decaying sampling radius (1/k)
+        # if self.t==0:
+        #     self.stopiter()
+        #     if self.status != None:
+        #         return self.function_evals, self.x, self.status
+        # # Take step of optimizer
+        # if u == None:
+        #     # generate a random direction
+        #     if self.rtype == 'Box':
+        #         # u = ot.sampling( n_samp = 1, dim = self.n, randtype = self.rtype,
+        #         #             distparam = {'coord': ot.idx2coord(np.random.randint(0, np.size(self.x))),
+        #         #                 'windowsz': int(np.round(np.sqrt(np.prod(self.Atk.viewsize[2:4])*self.p))),
+        #         #                 'ImSize': self.Atk.viewsize[2:4]
+        #         #                 }
+        #         #             )
+        #         pass
+        #     elif self.rtype == 'Uniform':
+        #         u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.rtype)
+        #     elif self.rtype == 'Coord':
+        #         u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.dist_dir)
 
-            # normalize
-            u /= np.linalg.norm(u)
+        #     # normalize
+        #     u /= np.linalg.norm(u)
             
             
-        u = u.reshape(np.shape(self.x))
-        ######### debug mode ########
-        #print('shape of u:', np.shape(u))
-        fmin, xmin = self.CARS_step(u, r)
-        self.x = xmin
-        self.fval = fmin
+        # u = u.reshape(np.shape(self.x))
+        # ######### debug mode ########
+        # #print('shape of u:', np.shape(u))
+        # fmin, xmin = self.CARS_step(u, r)
+        # self.x = xmin
+        # self.fval = fmin
 
-        self.t += 1
-        self.stopiter()
+        # self.t += 1
+        # self.stopiter()
         
-        if self.status != None:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad_norm, self.status, True # 3rd val = termination or not
-        else:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad_norm, self.status, False # 3rd val = termination or not
-        #else:
-        #    return self.function_evals, None, None   
+        # if self.status != None:
+        #     return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad_norm, self.status, True # 3rd val = termination or not
+        # else:
+        #     return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.curr_grad_norm, self.status, False # 3rd val = termination or not
+        # #else:
+        # #    return self.function_evals, None, None   
 
-class SMTP(OptForAttack):
-    '''
-    SMTP
-    '''
-    def __init__(self, param, y0, f):
-        '''
-            Initialize parameters
-        '''
+# class SMTP(OptForAttack):
+#     '''
+#     SMTP
+#     '''
+#     def __init__(self, param, y0, f):
+#         '''
+#             Initialize parameters
+#         '''
         
-        super().__init__(param, y0, f)
-        self.Otype = 'CARS'
+#         super().__init__(param, y0, f)
+#         self.Otype = 'CARS'
         
         
-        ''' Other parameters
-        p ...... Window size parameter. Fraction of pixels being changed
-                 Thus the window size is sqrt(p)*28 for MNIST imgs
-        '''
-        self.p = self.wsp
+#         ''' Other parameters
+#         p ...... Window size parameter. Fraction of pixels being changed
+#                  Thus the window size is sqrt(p)*28 for MNIST imgs
+#         '''
+#         self.p = self.wsp
 
-    def sety0(self, y):
-        super().sety0(y)
+#     def sety0(self, y):
+#         super().sety0(y)
 
-    def step(self, u = None):
-        ''' 
-            Do CARS Step.
-            The direction vector u can be given as a param.
-            If not given, it randomly generate a direction using the distribution parameter
-                (-dd in script, self.rtype)
-        '''
+#     def step(self, u = None):
+#         ''' 
+#             Do CARS Step.
+#             The direction vector u can be given as a param.
+#             If not given, it randomly generate a direction using the distribution parameter
+#                 (-dd in script, self.rtype)
+#         '''
 
-        if self.t==0:
-            self.stopiter()
-            if self.status != None:
-                return self.function_evals, self.x, self.status
+#         if self.t==0:
+#             self.stopiter()
+#             if self.status != None:
+#                 return self.function_evals, self.x, self.status
 
-        if self.t>1:
-            self.fminprev = self.fmin # previous min value
-        # Take step of optimizer
-        if u == None:
-            # generate a random direction
-            if self.rtype == 'Box':
-                u = ot.sampling( n_samp = 1, dim = self.n, randtype = self.rtype,
-                            distparam = {'coord': ot.idx2coord(np.random.randint(0, np.size(self.x))),
-                                'windowsz': int(np.round(np.sqrt(np.prod(self.Atk.viewsize[2:4])*self.p))),
-                                'ImSize': self.Atk.viewsize[2:4]
-                                }
-                            )
-            elif self.rtype == 'Uniform':
-                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.rtype)
-            elif self.rtype == 'Coord':
-                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.dist_dir)
+#         if self.t>1:
+#             self.fminprev = self.fmin # previous min value
+#         # Take step of optimizer
+#         if u == None:
+#             # generate a random direction
+#             if self.rtype == 'Box':
+#                 u = ot.sampling( n_samp = 1, dim = self.n, randtype = self.rtype,
+#                             distparam = {'coord': ot.idx2coord(np.random.randint(0, np.size(self.x))),
+#                                 'windowsz': int(np.round(np.sqrt(np.prod(self.Atk.viewsize[2:4])*self.p))),
+#                                 'ImSize': self.Atk.viewsize[2:4]
+#                                 }
+#                             )
+#             elif self.rtype == 'Uniform':
+#                 u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.rtype)
+#             elif self.rtype == 'Coord':
+#                 u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.dist_dir)
 
-            # normalize
-            u /= np.linalg.norm(u)
-        fmin, xmin = self.CARS_step(u, self.r)
-        self.x = xmin
-        self.ximg = self.Atk.xmap(self.x)
-        self.fval = fmin
+#             # normalize
+#             u /= np.linalg.norm(u)
+#         fmin, xmin = self.CARS_step(u, self.r)
+#         self.x = xmin
+#         self.ximg = self.Atk.xmap(self.x)
+#         self.fval = fmin
 
-        self.t += 1
-        self.stopiter()
-        # decrease p as #iter increases
-        if self.t in [2,10,40,250,500,800,1200,1600]:
-            self.p /= 2.
-        if self.status != None:
-            return self.function_evals, self.x, self.status
-        else:
-            return self.function_evals, None, None   
+#         self.t += 1
+#         self.stopiter()
+#         # decrease p as #iter increases
+#         if self.t in [2,10,40,250,500,800,1200,1600]:
+#             self.p /= 2.
+#         if self.status != None:
+#             return self.function_evals, self.x, self.status
+#         else:
+#             return self.function_evals, None, None   
 
 class NS(OptForAttack):
     '''
