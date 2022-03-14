@@ -195,7 +195,7 @@ for problem in probs_under_100:
         x0_invoke_ = np.random.randn(dim_x0_)
         '''
         x0_invoke_ = p_invoke_.x0
-        print(f'problem name: {p_invoke_.name} ( {prob_count} / {len(probs_under_100)}, exp {i} / {num_experiments} )')
+        print(f'problem name: {p_invoke_.name} ( {prob_count} / {len(probs_under_100)}, exp {i+1} / {num_experiments} )')
         print('dimension of problem: ', len(x0_invoke_))
         print(f'invoking {param["Otype"]} in a loop....')
         param['x0'] =  copy.copy(x0_invoke_)

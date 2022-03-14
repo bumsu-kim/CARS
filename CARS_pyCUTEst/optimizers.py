@@ -390,7 +390,7 @@ class NS(OptForAttack):
         if self.safeguard:
             # safe-guarded
             self.x = self.xmin
-            self.fval = self.fval
+            self.fval = self.fmin
         else:
             # original
             self.x = xnew
