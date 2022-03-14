@@ -1,3 +1,4 @@
+from re import S
 import numpy as np
 import numpy.matlib
 from optbase import BaseOptimizer
@@ -259,10 +260,13 @@ class SMTP(OptForAttack):
         super().__init__(param, y0, f)
         if param['momentum']:
             self.Otype = 'SMTP'
+            self.v_smtp = np.zeros(np.shape(self.x))
+            self.beta = 0.5
+            self.gamma = 0.01
         else:
             self.Otype = 'STP'
 
-        self.M = 1
+        self.M = param['M']
         ######### debug mode ########
         #print('shape of x:', np.shape(self.x))
         
@@ -277,6 +281,62 @@ class SMTP(OptForAttack):
             If not given, it randomly generate a direction using the distribution parameter
                 (-dd in script, self.rtype)
         '''
+
+        r = self.r * np.sqrt(1/(self.t+1)) # decaying sampling radius (1/sqrt(k))
+        if self.t==0:
+            self.stopiter()
+            if self.status != None:
+                return self.function_evals, self.x, self.status
+        # Take step of optimizer
+        if u == None:
+            # generate a random direction
+            if self.rtype == 'Box':
+                pass
+            elif self.rtype == 'Uniform':
+                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.rtype)
+            elif self.rtype == 'Coord':
+                u = ot.sampling(n_samp = 1, dim = self.n, randtype = self.dist_dir)
+
+            # normalize
+            u /= np.linalg.norm(u)
+            
+            
+        u = u.reshape(np.shape(self.x))
+        ######### debug mode ########
+        #print('shape of u:', np.shape(u))
+        if self.Otype == 'SMTP':
+            [vm, vp] = [self.beta*self.v_smtp + u, self.beta*self.v_smtp + u]
+            [xm, xp] = [self.x - r*vm, self.x - r*vp]
+            [zm, zp] = [xm - r*self.beta/(1.-self.beta) * vm, xp - r*self.beta/(1.-self.beta)*vp]
+            [fzp, fzm] = [self.f(zm), self.f(zp)]
+            if self.fmin == fzp:
+                self.x = xp
+                self.v_smtp = vp
+            elif self.fmin == fzm:
+                self.x = xm
+                self.v_smtp = vm
+            else:
+                # self.x and self.v does not change
+                pass
+            self.fval = self.fmin
+        else:
+            [fm, fp] = [self.f(self.x+r*u), self.f(self.x-r*u)]
+            self.x = self.xmin
+            self.fval = self.fmin
+        
+
+        self.t += 1
+        self.stopiter()
+        
+        if self.status != None:
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, True # 3rd val = termination or not
+        else:
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, False # 3rd val = termination or not
+        #else:
+        #    return self.function_evals, None, None   
+
+
+
         r = self.r * (1./(self.t+1)) # decaying sampling radius (1/k)
         if self.t==0:
             self.stopiter()
