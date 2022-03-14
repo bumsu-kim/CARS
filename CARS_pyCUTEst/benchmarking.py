@@ -104,6 +104,8 @@ def run_pycutest(problem, param):
         opt = optimizers.SMTP(param, y0 = x0, f = p.obj)
     elif Otype == "NS":
         opt = optimizers.NS(param, y0=x0, f=p.obj)
+    elif Otype == "DEF": # default
+        opt = optimizers.Reference_DefaultSolver(param, y0=x0, f=p.obj)
     # step.
     termination = False
     
@@ -207,6 +209,7 @@ for problem in probs_under_100:
         status_list[i].append(status)
         print('\n')
         with open(f"npy/{paramsfile}/{param['Otype']}_{problem}_{i}.npy", 'wb') as f:
+            # write/binary mode
             np.save(f, np.vstack((fvals, gnorms)))
             f.close()
 

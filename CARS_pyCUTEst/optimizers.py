@@ -5,7 +5,8 @@ from optbase import BaseOptimizer
 from multiprocessing.dummy import Pool
 import OptTools as ot
 import copy
-from matplotlib import pyplot as plt 
+from matplotlib import pyplot as plt
+from scipy import optimize
 
 class OptForAttack(BaseOptimizer):
     '''
@@ -208,6 +209,7 @@ class CARS(OptForAttack):
             If not given, it randomly generate a direction using the distribution parameter
                 (-dd in script, self.rtype)
         '''
+        
         r = self.r * np.sqrt(1/(self.t+1)) # decaying sampling radius (1/sqrt(k))
         if self.t==0:
             self.stopiter()
@@ -238,9 +240,9 @@ class CARS(OptForAttack):
         self.stopiter()
         
         if self.status != None:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, True # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, True # last val = termination or not
         else:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, False # 3rd val = termination or not
+            return None, None, None, None, None, False # last val = termination or not
         #else:
         #    return self.function_evals, None, None   
 
@@ -327,9 +329,9 @@ class SMTP(OptForAttack):
         self.stopiter()
         
         if self.status != None:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, True # 3rd val = termination or not
+            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, True # last val = termination or not
         else:
-            return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, False # 3rd val = termination or not
+            return None, None, None, None, None, False # last val = termination or not
         #else:
         #    return self.function_evals, None, None   
 
@@ -403,9 +405,35 @@ class NS(OptForAttack):
             return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, True # 3rd val = termination or not
         else:
             return None, None, None, None, None, False # 3rd val = termination or not
-            # faster?
-        #else:
-        #    return self.function_evals, None, None   
+        
+
+class Reference_DefaultSolver(OptForAttack):
+    '''
+    Reference for the default solver (e.g. )
+    '''
+    def __init__(self, param, y0, f):
+        '''
+            Initialize parameters
+        '''
+        super().__init__(param, y0, f)
+        self.Otype = 'DEF'
+        self.budget_param = int(param["budget_param"])
+
+
+    def sety0(self, y):
+        super().sety0(y)
+
+    def step(self, u = None):
+        ''' 
+            Use the defulat solver
+        '''
+        res = optimize.minimize(self.f, self.x, method="BFGS", jac=None,
+                         options={'gtol':1e-5, 'maxiter': self.budget_param/2})
+    
+        self.t = res.nit + 1
+        self.stopiter()
+        
+        return self.x, self.fvalseq[0:self.t+1], self.function_evals, self.gnormseq[0:self.t+1], self.status, True # 3rd val = termination or not
         
 #######################################################################################
 ## NEED UPDATES 
