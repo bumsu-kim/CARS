@@ -112,6 +112,12 @@ def oracles_with_p(f, xs, pool=None):
     #     xlist = [xs[i,:] for i in range(m)]
     #     return np.array(pool.map(f, xlist))
 
+def FwdDiff(f, x, h, u, fval, proj = None):
+    xp = x + h*u # proj(x + h*u)
+    fp = f(xp)
+    d = (fp-fval)/h
+    return d
+
 def CentDiff(f, x, h, u, fval, eps, proj = None):
     xp = x + h*u # proj(x + h*u)
     xm = x - h*u # proj(x - h*u)
