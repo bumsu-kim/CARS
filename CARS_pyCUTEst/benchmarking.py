@@ -100,8 +100,8 @@ def run_pycutest(problem, param):
     Otype = param["Otype"]
     if Otype == "CARS":
         opt = optimizers.CARS(param, y0 = x0, f = p.obj)
-    elif Otype == "Other":
-        pass # implement this later
+    elif Otype == "STP" or Otype == "SMTP":
+        opt = optimizers.SMTP(param, y0 = x0, f = p.obj)
     # step.
     termination = False
     
