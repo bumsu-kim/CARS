@@ -66,10 +66,14 @@ for k=1:maxit
         Lhat = 1/2 + sqrt(1/4 + M*abs(d)/h^2/2); % cubic regularization
         alpha = 1/Lhat;
         delta = -alpha*d/h*u; % move to the next iterate
-        fxnewton = f(x+delta);
+        fxCARSp = f(x+delta);
         num_queries(k+1) = num_queries(k+1) + 1; %single query here
+
+        fxCARSm = f(x-delta);
+        num_queries(k+1) = num_queries(k+1) + 1; %single query here
+
         
-        fs = [fx, fp, fm, fxnewton];
+        fs = [fx, fp, fm, fxCARSp, fxCARSm];
         [fxnew, midx] = min(fs);
         CARScounter(midx) = CARScounter(midx)+1;
         if midx == 1
@@ -80,6 +84,9 @@ for k=1:maxit
                 delta = mu*u;
             elseif midx == 3
                 delta = -mu*u;
+            elseif midx == 5
+                delta = -delta;
+                % The negative CARS point was selected.
             elseif midx == 4
                 % delta not changed
             end 

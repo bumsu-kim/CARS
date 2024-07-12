@@ -3,9 +3,9 @@
 again = false;
 %---------------------------
 
-ProbType = 'MOR'; % More-Garbow-Hillstrom 34 problems
+%ProbType = 'MOR'; % More-Garbow-Hillstrom 34 problems
 % ProbType = 'NMO'; % Noisy More-Garbow-Hillstrom 34 problems
-% ProbType = 'QUA'; % quartic, noisy
+ProbType = 'QUA'; % quartic, noisy
 Param_Settings;
 
 tic;
@@ -31,15 +31,26 @@ Results{i} = CARS(fparam, param, 0);
 etime2(i) = toc;
 Results{i}.name = algname{i};
 
-%% CARS - NQ
+% %% CARS - NQ
+% i = i+1;
+% algname{i} = 'CARS-NQ';
+% if verbose>1
+%     disp(['Starting ', algname{i}, ' ...']);
+% end
+% tic;
+% Num_Quad_Pts = 5;
+% Results{i} = CARS(fparam, param, Num_Quad_Pts);
+% etime2(i) = toc;
+% Results{i}.name = algname{i};
+
+%% CARS - Cubic regularization
 i = i+1;
-algname{i} = 'CARS-NQ';
+algname{i} = 'CARS-CR';
 if verbose>1
     disp(['Starting ', algname{i}, ' ...']);
 end
 tic;
-Num_Quad_Pts = 5;
-Results{i} = CARS(fparam, param, Num_Quad_Pts);
+Results{i} = CARS_cubic(fparam, param, 0);
 etime2(i) = toc;
 Results{i}.name = algname{i};
 
@@ -87,15 +98,15 @@ etime2(i) = toc;
 Results{i}.name = algname{i};
 
 %% 2SPSA
-% i = i+1;
-% algname{i} = '2-SPSA';
-% if verbose>1
-%     disp(['Starting ', algname{i}, ' ...']);
-% end
-% tic;
-% Results{i} = Real2SPSA(fparam,param);
-% etime2(i) = toc;
-% Results{i}.name = algname{i};
+i = i+1;
+algname{i} = '2-SPSA';
+if verbose>1
+    disp(['Starting ', algname{i}, ' ...']);
+end
+tic;
+Results{i} = Real2SPSA(fparam,param);
+etime2(i) = toc;
+Results{i}.name = algname{i};
 
 %% AdaDGS
 i = i+1;
@@ -109,13 +120,3 @@ Results{i} = AdaDGS(fparam, param, Num_Quad_Pts);
 etime2(i) = toc;
 Results{i}.name = algname{i};
 
-%% CARS - Cubic regularization
-i = i+1;
-algname{i} = 'CARS-CR';
-if verbose>1
-    disp(['Starting ', algname{i}, ' ...']);
-end
-tic;
-Results{i} = CARS_cubic(fparam, param, 0);
-etime2(i) = toc;
-Results{i}.name = algname{i};

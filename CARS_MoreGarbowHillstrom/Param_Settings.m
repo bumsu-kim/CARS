@@ -178,10 +178,10 @@ if ~again
         freq = 2*pi*5e1*ones(n,1);
         fx0 = sum(f_M(x0).^2);
     else
-        n = 20;
+        n = 30;
         lambda = +0.01;%1e-2;
         rk = n;
-        A = randn(n, rk); A = A*A'; A = A/trace(A)*n + lambda*eye(n);
+        A = randn(n, rk); A = A*A'; A = A + lambda*eye(n); %A = A/trace(A)*n + lambda*eye(n);
         alpha =  0.1*ones(n,1);
         f_M = @(x) dot(alpha, x.^4) + 0.5*dot(x,A*x);
         fmin = 0; x0 = ones(n,1); x0 = x0/norm(x0)*2;

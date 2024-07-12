@@ -1,9 +1,9 @@
-function [evals, Results] = more_test(ftns, rep, eps, noise_lvl, budget, verbose)
+function [evals, Results, objval_plotting_data, objval_seq_matrix] = more_test(ftns, rep, eps, noise_lvl, budget, verbose)
 nftn = length(ftns);
 evals = zeros(20, nftn);
 
 for i=1:nftn % run for each function
-    [tempevals, Results, finfo] = more_run(ftns(i), rep, eps, noise_lvl, budget, verbose);
+    [tempevals, Results, finfo, objval_plotting_data, objval_seq_matrix] = more_run(ftns(i), rep, eps, noise_lvl, budget, verbose);
     nOpts = length(Results);
     evals(1:nOpts, i) = tempevals;
     
